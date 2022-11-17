@@ -1,0 +1,9 @@
+std = "roblox"
+
+[config]
+# Configure selene's linting:
+# https://kampfkarren.github.io/selene/usage/configuration.html
+
+[rules]
+# Customize selene's lint rules:
+# https://kampfkarren.github.io/selene/lints/index.html

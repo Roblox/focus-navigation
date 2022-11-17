@@ -1,0 +1,12 @@
+{
+  "name": "FocusNavigationTest",
+  "tree": {
+    "$className": "Folder",
+    "Packages": {
+      "$path": "Packages",
+      "FocusNavigation": {
+        "$path": "src"
+      }
+    }
+  }
+}
