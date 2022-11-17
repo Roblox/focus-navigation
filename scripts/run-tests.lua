@@ -4,15 +4,16 @@ local processServiceExists, ProcessService = pcall(function()
 end)
 
 local Packages = Root.Packages
-if not Packages or not Packages:FindFirstChild("Dev") then
+if not Packages then
 	game:GetService("TestService"):Error("Invalid Package configuration. Try running `rotrieve install` to remedy.")
 	ProcessService:ExitAsync(1)
 end
 
-local runCLI = require(Packages.Dev.Jest).runCLI
+-- FIXME: workspaces + jest 3.0 testing story still needs some work
+local WorkspaceRoot = Packages._Workspace
+local runCLI = require(WorkspaceRoot.FocusNavigation.Dev.Jest).runCLI
 
-local status, result =
-	runCLI(Packages["FocusNavigation"], {}, { Packages["FocusNavigation"] }):awaitStatus()
+local status, result = runCLI(WorkspaceRoot, {}, { WorkspaceRoot }):awaitStatus()
 
 if status == "Rejected" then
 	print(result)

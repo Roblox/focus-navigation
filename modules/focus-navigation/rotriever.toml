@@ -1,0 +1,14 @@
+[package]
+name = "FocusNavigation"
+authors = ["Roblox"]
+version = "0.1.0"
+content_root = "src"
+files = ["*", "!**/__tests__"]
+
+[dependencies]
+# Add dependencies here. Dependencies might look like:
+# React = "github.com/roblox/roact-alignment@17.0.1-rc.16"
+
+[dev_dependencies]
+JestGlobals = { workspace = true }
+Jest = { workspace = true }
