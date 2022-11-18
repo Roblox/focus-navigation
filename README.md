@@ -19,21 +19,10 @@
 
 **Fill in a longer description about Focus Navigation here!**
 
-## Installation
-
-### Filesystem
-* Add this repository as a Git submodule or copy it into your project
-* Use a plugin like [Rojo](https://github.com/LPGhatguy/rojo) to sync the `src` folder into a place
-
-### Model File
-* Download the `rbxmx` model file attached to the latest release from the [GitHub releases page](https://github.com/Roblox/focus-navigation/releases)
-* Insert the model into Studio into a place like `ReplicatedStorage`
-
 ## Documentation
-Documentation for Focus Navigation is available on [the official documentation website](https://roblox.github.io/focus-navigation).
+*🛠 - Under Construction*
 
-## License
-Licensed under the MIT license ([LICENSE.txt](LICENSE.txt) or http://opensource.org/licenses/MIT).
+<!-- Documentation for Focus Navigation is available on [the official documentation website](https://roblox.github.io/focus-navigation). -->
 
 ### Contribution
 Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you, as defined in the MIT license, shall be licensed as above, without any additional terms or conditions.
