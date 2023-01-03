@@ -2,12 +2,9 @@
 
 The EventPropagationService is currently an implementation detail of the FocusNavigationService. It is primarily responsible for functionality related to propagating events registered and triggered by the consumer.
 
-# API
-
 ## Types
 
 ### EventPhase
-
 ```lua
 type EventPhase = "Bubble" | "Capture" | "Target"
 ```
@@ -20,7 +17,38 @@ The EventPhase represents the phase of the event propagation cycle a given Event
 *Bubble* - This is the default phase that EventHandlers are registered to. EventHandlers registered in this phase are called in order from the target instance to the targets furthest ancestor.
 
 
-## EventPropagationService
+### Event
+```lua
+type Event = {
+    cancelled: boolean,
+    phase: EventPhase,
+    currentInstance: Instance,
+    targetInstance: Instance,
+    eventName: string,
+    eventInfo: any,
+    cancel: () -> ()
+}
+```
+`Event`s are passed to `EventHandler`s with the appropriate information when the `EventHandler` is called during event propagation. Note that each `EventHandler` is called with it's own `Event`, mutations to the Event will not be picked up by subsequent handlers.
+
+### EventHandler
+```lua
+type EventHandler = (e: Event) -> ()
+```
+`EventHandler`s are simple functions that take an event as an argument, and return nothing.
+
+### EventHandlerMap
+```lua
+type EventHandlerMap = {
+	[string]: {
+		handler: EventHandler,
+		phase: EventPhase?,
+	},
+}
+```
+An `EventHandlerMap` gets used to register an `EventHandler` to an event in a given phase (or `"Bubble"` if ommitted). The keys of the map are the names of the events that will be used when `EventPropagationService:propagateEvent` is called.
+
+## API
 
 ### new
 
