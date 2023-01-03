@@ -104,4 +104,16 @@ EventPropagationService:propagateEvent(
     silent: boolean
 )
 ```
-Propagate an event on a given `Instance` by name. Optionally the event can be propagated with some additional information which will be available to all handlers that pick up the event. Additionally the event can be propagated in `silent` mode which will only call `EventHandler`s on the specified instance. behind the scenes it creates a list of ancestors with relevant registered eventHandlers is created. The list is then looped over from furthest ancestor to the target, calling all eventHandlers that are registered for the capture phase, the event handler for the target phase on the focused GuiObject is called, then the list is looped over from the target to the furthest ancestor to call all of the eventHandlers registered for the bubble phase. So in essence the phase order is Capture → Target → Bubble. It should be noted that the target phase is special in that the only handler that runs during the target phase is the handler on the currently focused element. These phases and their meaning are based on those from the Web API for event propagation. 
+Propagate an event on a given `Instance` by name. Optionally the event can be propagated with some additional information which will be available to all handlers that pick up the event. Additionally the event can be propagated in `silent` mode which will only call `EventHandler`s on the specified instance. behind the scenes it creates a list of ancestors with relevant registered eventHandlers is created. The list is then looped over from furthest ancestor to the target, calling all eventHandlers that are registered for the capture phase, the event handler for the target phase on the focused GuiObject is called, then the list is looped over from the target to the furthest ancestor to call all of the eventHandlers registered for the bubble phase. So in essence the phase order is Capture → Target → Bubble. It should be noted that the target phase is special in that the only handler that runs during the target phase is the handler on the currently focused element. These phases and their meaning are based on those from the Web API for event propagation.
+
+## Usage
+```lua
+local eventPropagationService = EventPropagationService.new()
+local exampleInstance = Instance.new("frame")
+function eventHandler(e: Event)
+    print(e.phase)
+end
+eventPropagationService:registerEventHandler(exampleInstance, "exampleEvent", eventHandler)
+eventPropagationService:propagateEvent(exampleInstance, "exampleEvent", nil, false)
+-- prints "Bubble"
+```

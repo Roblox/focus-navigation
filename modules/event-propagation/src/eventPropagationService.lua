@@ -54,10 +54,10 @@ function EventPropagationService:registerEventHandler(
 	eventHandler: EventHandler,
 	phase: EventPhase?
 )
-	local phase: EventPhase = phase or DEFAULT_PHASE
+	local resolvedPhase: EventPhase = phase or DEFAULT_PHASE
 	self.eventHandlerRegistry[instance] = self.eventHandlerRegistry[instance] or {}
 	self.eventHandlerRegistry[instance][eventName] = self.eventHandlerRegistry[instance][eventName] or {}
-	self.eventHandlerRegistry[instance][eventName][phase] = eventHandler
+	self.eventHandlerRegistry[instance][eventName][resolvedPhase] = eventHandler
 end
 
 function EventPropagationService:registerEventHandlers(instance: Instance, map: EventHandlerMap)
@@ -74,10 +74,10 @@ function EventPropagationService:deRegisterEventHandlers(instance: Instance)
 end
 
 function EventPropagationService:deRegisterEventHandler(instance: Instance, eventName: string, phase: EventPhase?)
-	local phase: EventPhase = phase or DEFAULT_PHASE
+	local resolvedPhase: EventPhase = phase or DEFAULT_PHASE
 	local eventPhases = getEventPhasesFromRegistry(self.eventHandlerRegistry, instance, eventName)
-	if eventPhases and eventPhases[phase] then
-		eventPhases[phase] = nil
+	if eventPhases and eventPhases[resolvedPhase] then
+		eventPhases[resolvedPhase] = nil
 	end
 end
 
@@ -91,21 +91,22 @@ function EventPropagationService:propagateEvent(instance: Instance, eventName: s
 		end
 		return false
 	end
+	local cancelled = false
 	local ancestors: {[number]: Instance} = if silent then { instance } else getAncestors(instance)
 	for i = #ancestors, 1, -1 do
 		local ancestor = ancestors[i]
-		local cancelled = runEventHandler(ancestor, "Capture")
+		cancelled = runEventHandler(ancestor, "Capture")
 		if cancelled then
 			return
 		end
 	end
-	local cancelled = runEventHandler(instance, "Target")
+	cancelled = runEventHandler(instance, "Target")
 	if cancelled then
 		return
 	end
 	for i = 1, #ancestors do
 		local ancestor = ancestors[i]
-		local cancelled = runEventHandler(ancestor, "Bubble")
+		cancelled = runEventHandler(ancestor, "Bubble")
 		if cancelled then
 			return
 		end

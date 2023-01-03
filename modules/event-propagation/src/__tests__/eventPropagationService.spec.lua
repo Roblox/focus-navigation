@@ -154,7 +154,7 @@ describe("EventPropagationService", function()
 				},
 			}
 			eventPropagationService:registerEventHandlers(instance, eventHandlers)
-			local expected = {
+			local expectedRegistryWithHandler = {
 				__mode = "k",
 				[instance] = {
 					eventType = {
@@ -162,12 +162,12 @@ describe("EventPropagationService", function()
 					},
 				},
 			}
-			expect(eventPropagationService.eventHandlerRegistry).toEqual(expected)
+			expect(eventPropagationService.eventHandlerRegistry).toEqual(expectedRegistryWithHandler)
 			eventPropagationService:deRegisterEventHandlers(instance)
-			local expected = {
+			local expectedRegistryWithoutHandler = {
 				__mode = "k",
 			}
-			expect(eventPropagationService.eventHandlerRegistry).toEqual(expected)
+			expect(eventPropagationService.eventHandlerRegistry).toEqual(expectedRegistryWithoutHandler)
 		end)
 		it("should leave unrelated eventHandlers in the registry", function()
 			local eventPropagationService = EventPropagationService.new()
@@ -181,7 +181,7 @@ describe("EventPropagationService", function()
 			eventPropagationService:registerEventHandlers(instance, eventHandlers)
 			local instance2 = Instance.new("Frame")
 			eventPropagationService:registerEventHandlers(instance2, eventHandlers)
-			local expected = {
+			local expectedRegistryWithHandlers = {
 				__mode = "k",
 				[instance] = {
 					eventType = {
@@ -194,9 +194,9 @@ describe("EventPropagationService", function()
 					},
 				},
 			}
-			expect(eventPropagationService.eventHandlerRegistry).toEqual(expected)
+			expect(eventPropagationService.eventHandlerRegistry).toEqual(expectedRegistryWithHandlers)
 			eventPropagationService:deRegisterEventHandlers(instance)
-			local expected = {
+			local expectedRegistryWithoutHandlers = {
 				__mode = "k",
 				[instance2] = {
 					eventType = {
@@ -204,7 +204,7 @@ describe("EventPropagationService", function()
 					},
 				},
 			}
-			expect(eventPropagationService.eventHandlerRegistry).toEqual(expected)
+			expect(eventPropagationService.eventHandlerRegistry).toEqual(expectedRegistryWithoutHandlers)
 		end)
 	end)
 	describe("registerEventHandler", function()
@@ -314,7 +314,7 @@ describe("EventPropagationService", function()
 				local function handler() end
 				local eventName = "eventName"
 				eventPropagationService:registerEventHandler(instance, eventName, handler, args.phase)
-				local expected = {
+				local expectedRegistryWithHandler = {
 					__mode = "k",
 					[instance] = {
 						[eventName] = {
@@ -322,15 +322,15 @@ describe("EventPropagationService", function()
 						},
 					},
 				}
-				expect(eventPropagationService.eventHandlerRegistry).toEqual(expected)
+				expect(eventPropagationService.eventHandlerRegistry).toEqual(expectedRegistryWithHandler)
 				eventPropagationService:deRegisterEventHandler(instance, eventName, args.phase)
-				local expected = {
+				local expectedRegistryWithoutHandler = {
 					__mode = "k",
 					[instance] = {
 						[eventName] = {},
 					},
 				}
-				expect(eventPropagationService.eventHandlerRegistry).toEqual(expected)
+				expect(eventPropagationService.eventHandlerRegistry).toEqual(expectedRegistryWithoutHandler)
 			end
 		)
 
@@ -342,7 +342,7 @@ describe("EventPropagationService", function()
 				local function handler() end
 				local eventName = "eventName"
 				eventPropagationService:registerEventHandler(instance, eventName, handler)
-				local expected = {
+				local expectedRegistryWithHandlers = {
 					__mode = "k",
 					[instance] = {
 						[eventName] = {
@@ -350,15 +350,15 @@ describe("EventPropagationService", function()
 						},
 					},
 				}
-				expect(eventPropagationService.eventHandlerRegistry).toEqual(expected)
+				expect(eventPropagationService.eventHandlerRegistry).toEqual(expectedRegistryWithHandlers)
 				eventPropagationService:deRegisterEventHandler(instance, eventName)
-				local expected = {
+				local expectedRegistryWithoutHandlers = {
 					__mode = "k",
 					[instance] = {
 						[eventName] = {},
 					},
 				}
-				expect(eventPropagationService.eventHandlerRegistry).toEqual(expected)
+				expect(eventPropagationService.eventHandlerRegistry).toEqual(expectedRegistryWithoutHandlers)
 			end
 		)
 
