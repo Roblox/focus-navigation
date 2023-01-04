@@ -719,41 +719,12 @@ describe("EventPropagationService", function()
 					eventPropagationService:registerEventHandlers(instanceOne, eventHandlerMapOne)
 					eventPropagationService:registerEventHandlers(instanceTwo, eventHandlerMapTwo)
 					eventPropagationService:registerEventHandlers(instanceThree, eventHandlerMapThree)
-					eventPropagationService:propagateEvent(instanceThree, eventName, nil, true)
+					eventPropagationService:propagateEvent(instanceThree, eventName, true)
 					expect(handler.mock.calls).toEqual({
 						{
 							expect.objectContaining({
 								phase = args.phase,
 								currentInstance = instanceThree,
-							}),
-						},
-					})
-				end
-			)
-		end)
-		describe("when event info is present", function()
-			it.each({ { phase = "Bubble" }, { phase = "Capture" }, { phase = "Target" } })(
-				"should pass the provided event info to handlers registered for the $phase phase",
-				function(args)
-					local handler = jest.fn()
-					local eventPropagationService = EventPropagationService.new()
-					local instanceOne = Instance.new("Frame")
-					local eventName = "eventName"
-					local eventHandlerMapOne = {
-						[eventName] = {
-							phase = args.phase,
-							handler = handler,
-						},
-					}
-					eventPropagationService:registerEventHandlers(instanceOne, eventHandlerMapOne)
-					local eventInfo = { itemA = "1", itemB = "2" }
-					eventPropagationService:propagateEvent(instanceOne, eventName, eventInfo, true)
-					expect(handler.mock.calls).toEqual({
-						{
-							expect.objectContaining({
-								phase = args.phase,
-								currentInstance = instanceOne,
-								eventInfo = eventInfo,
 							}),
 						},
 					})

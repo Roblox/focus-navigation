@@ -14,14 +14,12 @@ describe("EventPropagationEvent", function()
 		local currentInstance = Instance.new("Frame")
 		local eventName = "testEvent"
 		local phase = "Bubble"
-		local eventInfo = {}
-		local event = Event.new(targetInstance, currentInstance, eventName, phase, eventInfo)
+		local event = Event.new(targetInstance, currentInstance, eventName, phase)
 		local expected = expect.objectContaining({
 			targetInstance = targetInstance,
 			currentInstance = currentInstance,
 			eventName = eventName,
 			phase = phase,
-			eventInfo = eventInfo,
             cancelled = false
 		})
 		expect(event).toEqual(expected)
@@ -33,8 +31,7 @@ describe("EventPropagationEvent", function()
             local currentInstance = Instance.new("Frame")
             local eventName = "testEvent"
             local phase = "Bubble"
-            local eventInfo = {}
-            local event = Event.new(targetInstance, currentInstance, eventName, phase, eventInfo)
+            local event = Event.new(targetInstance, currentInstance, eventName, phase)
             event:cancel()
             local expected = expect.objectContaining({
                 cancelled = true

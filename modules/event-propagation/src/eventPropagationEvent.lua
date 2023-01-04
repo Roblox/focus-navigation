@@ -8,8 +8,7 @@ function Event.new(
 	targetInstance: Instance,
 	currentInstance: Instance,
 	eventName: string,
-	phase: EventPhase,
-	eventInfo: any
+	phase: EventPhase
 )
 	local self = {
 		cancelled = false,
@@ -17,7 +16,6 @@ function Event.new(
 		currentInstance = currentInstance,
 		targetInstance = targetInstance,
 		eventName = eventName,
-		eventInfo = eventInfo,
 	}
 	setmetatable(self, Event)
 	return self

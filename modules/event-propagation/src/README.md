@@ -25,12 +25,10 @@ type Event = {
     currentInstance: Instance,
     targetInstance: Instance,
     eventName: string,
-    eventInfo: any,
     cancel: () -> ()
 }
 ```
 `Event`s are passed to `EventHandler`s with the appropriate information when the `EventHandler` is called during event propagation. Note that each `EventHandler` is called with it's own `Event`, mutations to the Event will not be picked up by subsequent handlers.
-**Note**: the `eventInfo`property passes along any information sent when calling `propagateEvent`. This functionality is meant to be used as an escape hatch, and should be avoided if possible.
 
 ### EventHandler
 ```lua
@@ -101,7 +99,6 @@ De-register all `EventHandler`s from an `Instance`, regardless of phase.
 EventPropagationService:propagateEvent(
     instance: Instance,
     eventName: string,
-    eventInfo: any,
     silent: boolean
 )
 ```
@@ -109,7 +106,7 @@ Propagate an event on a given `Instance` by name.
 
 behind the scenes it creates a list of ancestors with relevant registered eventHandlers is created. The list is then looped over from furthest ancestor to the target, calling all eventHandlers that are registered for the capture phase, the event handler for the target phase on the focused GuiObject is called, then the list is looped over from the target to the furthest ancestor to call all of the eventHandlers registered for the bubble phase. So in essence the phase order is Capture → Target → Bubble. It should be noted that the target phase is special in that the only handler that runs during the target phase is the handler on the currently focused element. These phases and their meaning are based on those from the Web API for event propagation.
 
-**Note**: The event can optionally be propagated with some additional information (`eventInfo`) which will be available to all handlers that pick up the event. Additionally the event can be propagated in `silent` mode which will only call `EventHandler`s on the specified instance. Both the `eventInfo` and `silent` parameters are meant as escape hatches and should be avoided if at all possible.
+**Note**: The event can be propagated in `silent` mode which will only call `EventHandler`s on the specified instance. This mode is useful for migrating from a non-event-propagation system to an event propagation system.
 
 ## Usage
 ```lua

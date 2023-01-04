@@ -81,11 +81,11 @@ function EventPropagationService:deRegisterEventHandler(instance: Instance, even
 	end
 end
 
-function EventPropagationService:propagateEvent(instance: Instance, eventName: string, eventInfo: any, silent: boolean)
+function EventPropagationService:propagateEvent(instance: Instance, eventName: string, silent: boolean)
 	local function runEventHandler(currentAncestor: Instance, phase: EventPhase)
 		local eventHandler = getEventHandler(self.eventHandlerRegistry, currentAncestor, eventName, phase)
 		if eventHandler then
-			local event = Event.new(instance, currentAncestor, eventName, phase, eventInfo)
+			local event = Event.new(instance, currentAncestor, eventName, phase)
 			eventHandler(event)
 			return event.cancelled
 		end
