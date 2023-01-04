@@ -6,7 +6,7 @@ local expect = JestGlobals.expect
 local describe = JestGlobals.describe
 
 local eventPropagationEvent = require(script.Parent.Parent.eventPropagationEvent)
-local Event = eventPropagationEvent.Event
+local Event = eventPropagationEvent
 
 describe("EventPropagationEvent", function()
 	it("should have the expected properties when instantiated", function()

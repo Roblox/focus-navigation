@@ -6,7 +6,7 @@ local expect = JestGlobals.expect
 local describe = JestGlobals.describe
 local jest = JestGlobals.jest
 
-local EventPropagationService = require(script.Parent.Parent.eventPropagationService).EventPropagationService
+local EventPropagationService = require(script.Parent.Parent.eventPropagationService)
 
 describe("EventPropagationService", function()
 	describe("registerEventHandlers", function()

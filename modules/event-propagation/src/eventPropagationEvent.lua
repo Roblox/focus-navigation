@@ -29,7 +29,4 @@ end
 
 export type Event = typeof(Event.new(Instance.new("Frame"), Instance.new("Frame"), "", "Bubble"))
 
-local module = {}
-module.Event = Event
-
-return module
+return Event

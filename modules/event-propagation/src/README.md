@@ -80,7 +80,7 @@ EventPropagationService:registerEventHandlers(
 ```
 Register a map of `EventHandler`s using an `EventHandlerMap`.
 
-### eRegisterEventHandler
+### deRegisterEventHandler
 ```lua
 EventPropagationService:deRegisterEventHandler(
     instance: Instance,

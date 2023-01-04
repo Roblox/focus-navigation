@@ -4,6 +4,14 @@
 -- Variable name: EventPropagation
 -- Repo name: focus-navigation
 
-local eventPropagationService = require(script.eventPropagationService)
+local Event = require(script.eventPropagationEvent)
+local EventPropagationService = require(script.eventPropagationService)
 
-return eventPropagationService.EventPropagationService
+export type EventPhase = Event.EventPhase
+export type Event = Event.Event
+
+export type EventHandler = EventPropagationService.EventHandler
+export type EventHandlerMap = EventPropagationService.EventHandlerMap
+export type EventPropagationService = EventPropagationService.EventPropagationService
+
+return EventPropagationService

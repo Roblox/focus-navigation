@@ -1,18 +1,10 @@
 --!strict
 local eventPropagationEvent = require(script.Parent.eventPropagationEvent)
-local Event = eventPropagationEvent.Event
+local Event = eventPropagationEvent
 type EventPhase = eventPropagationEvent.EventPhase
 type Event = eventPropagationEvent.Event
 
 export type EventHandler = (e: Event) -> ()
-
-export type EventHandlerRegistry = {
-	[Instance]: {
-		[string]: {
-			[EventPhase]: EventHandler?,
-		}?,
-	}?,
-}
 
 export type EventHandlerMap = {
 	[string]: {
@@ -21,12 +13,20 @@ export type EventHandlerMap = {
 	},
 }
 
+type EventHandlerRegistry = {
+	[Instance]: {
+		[string]: {
+			[EventPhase]: EventHandler?,
+		}?,
+	}?,
+}
+
 local DEFAULT_PHASE: EventPhase = "Bubble"
 
 local function getAncestors(instance: Instance)
 	local ancestors = { instance }
 	while ancestors[#ancestors].Parent do
-		ancestors[#ancestors + 1] = ancestors[#ancestors].Parent :: Instance
+		table.insert(ancestors, ancestors[#ancestors].Parent :: Instance)
 	end
 	return ancestors
 end
@@ -126,6 +126,4 @@ end
 
 export type EventPropagationService = typeof(EventPropagationService.new())
 
-return {
-	EventPropagationService = EventPropagationService,
-}
+return EventPropagationService
