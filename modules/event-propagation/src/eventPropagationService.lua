@@ -78,7 +78,12 @@ function EventPropagationService:deRegisterEventHandlers(instance: Instance, map
 	end
 end
 
-function EventPropagationService:deRegisterEventHandler(instance: Instance, eventName: string, handler: EventHandler, phase: EventPhase?)
+function EventPropagationService:deRegisterEventHandler(
+	instance: Instance,
+	eventName: string,
+	handler: EventHandler,
+	phase: EventPhase?
+)
 	local resolvedPhase: EventPhase = phase or DEFAULT_PHASE
 	local eventPhases = getEventPhasesFromRegistry(self.eventHandlerRegistry, instance, eventName)
 	if eventPhases and eventPhases[resolvedPhase] == handler then
@@ -97,7 +102,7 @@ function EventPropagationService:propagateEvent(instance: Instance, eventName: s
 		return false
 	end
 	local cancelled = false
-	local ancestors: {[number]: Instance} = if silent then { instance } else getAncestors(instance)
+	local ancestors: { [number]: Instance } = if silent then { instance } else getAncestors(instance)
 	for i = #ancestors, 1, -1 do
 		local ancestor = ancestors[i]
 		cancelled = runEventHandler(ancestor, "Capture")
@@ -130,6 +135,5 @@ function EventPropagationService.new()
 end
 
 export type EventPropagationService = typeof(EventPropagationService.new())
-
 
 return EventPropagationService

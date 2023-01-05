@@ -20,25 +20,25 @@ describe("EventPropagationEvent", function()
 			currentInstance = currentInstance,
 			eventName = eventName,
 			phase = phase,
-            cancelled = false
+			cancelled = false,
 		})
 		expect(event).toEqual(expected)
 	end)
 
-    describe("when cancel is called", function()
-        it("should have the cancelled property set to true", function()
-            local targetInstance = Instance.new("Frame")
-            local currentInstance = Instance.new("Frame")
-            local eventName = "testEvent"
-            local phase = "Bubble"
-            local event = Event.new(targetInstance, currentInstance, eventName, phase)
-            event:cancel()
-            local expected = expect.objectContaining({
-                cancelled = true
-            })
-            expect(event).toEqual(expected)
-        end)
-    end)
+	describe("when cancel is called", function()
+		it("should have the cancelled property set to true", function()
+			local targetInstance = Instance.new("Frame")
+			local currentInstance = Instance.new("Frame")
+			local eventName = "testEvent"
+			local phase = "Bubble"
+			local event = Event.new(targetInstance, currentInstance, eventName, phase)
+			event:cancel()
+			local expected = expect.objectContaining({
+				cancelled = true,
+			})
+			expect(event).toEqual(expected)
+		end)
+	end)
 end)
 
 return {}

@@ -499,12 +499,12 @@ describe("EventPropagationService", function()
 			})
 		end)
 		it("should be able to cancel the event during the bubble phase", function()
-			local handler = jest.fn()
-				.mockImplementationOnce(function() end)
-				.mockImplementationOnce(function() end)
-				.mockImplementationOnce(function(event)
-					event:cancel()
-				end)
+			local handler =
+				jest.fn().mockImplementationOnce(function() end).mockImplementationOnce(function() end).mockImplementationOnce(
+					function(event)
+						event:cancel()
+					end
+				)
 			local eventPropagationService = EventPropagationService.new()
 			local instanceOne = Instance.new("Frame")
 			local instanceTwo = Instance.new("Frame")

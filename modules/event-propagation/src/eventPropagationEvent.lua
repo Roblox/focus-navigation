@@ -4,12 +4,7 @@ export type EventPhase = "Bubble" | "Capture" | "Target"
 local Event = {}
 Event.__index = Event
 
-function Event.new(
-	targetInstance: Instance,
-	currentInstance: Instance,
-	eventName: string,
-	phase: EventPhase
-)
+function Event.new(targetInstance: Instance, currentInstance: Instance, eventName: string, phase: EventPhase)
 	local self = {
 		cancelled = false,
 		phase = phase,
