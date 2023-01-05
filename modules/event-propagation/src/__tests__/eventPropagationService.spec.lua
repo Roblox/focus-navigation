@@ -163,9 +163,14 @@ describe("EventPropagationService", function()
 				},
 			}
 			expect(eventPropagationService.eventHandlerRegistry).toEqual(expectedRegistryWithHandler)
-			eventPropagationService:deRegisterEventHandlers(instance)
+			eventPropagationService:deRegisterEventHandlers(instance, eventHandlers)
 			local expectedRegistryWithoutHandler = {
 				__mode = "k",
+				[instance] = {
+					eventType = {
+						Bubble = nil,
+					},
+				},
 			}
 			expect(eventPropagationService.eventHandlerRegistry).toEqual(expectedRegistryWithoutHandler)
 		end)
@@ -195,12 +200,17 @@ describe("EventPropagationService", function()
 				},
 			}
 			expect(eventPropagationService.eventHandlerRegistry).toEqual(expectedRegistryWithHandlers)
-			eventPropagationService:deRegisterEventHandlers(instance)
+			eventPropagationService:deRegisterEventHandlers(instance, eventHandlers)
 			local expectedRegistryWithoutHandlers = {
 				__mode = "k",
 				[instance2] = {
 					eventType = {
 						Bubble = handler,
+					},
+				},
+				[instance] = {
+					eventType = {
+						Bubble = nil,
 					},
 				},
 			}
@@ -323,7 +333,7 @@ describe("EventPropagationService", function()
 					},
 				}
 				expect(eventPropagationService.eventHandlerRegistry).toEqual(expectedRegistryWithHandler)
-				eventPropagationService:deRegisterEventHandler(instance, eventName, args.phase)
+				eventPropagationService:deRegisterEventHandler(instance, eventName, handler, args.phase)
 				local expectedRegistryWithoutHandler = {
 					__mode = "k",
 					[instance] = {
@@ -351,7 +361,7 @@ describe("EventPropagationService", function()
 					},
 				}
 				expect(eventPropagationService.eventHandlerRegistry).toEqual(expectedRegistryWithHandlers)
-				eventPropagationService:deRegisterEventHandler(instance, eventName)
+				eventPropagationService:deRegisterEventHandler(instance, eventName, handler)
 				local expectedRegistryWithoutHandlers = {
 					__mode = "k",
 					[instance] = {
@@ -387,7 +397,7 @@ describe("EventPropagationService", function()
 				}
 				eventPropagationService:registerEventHandlers(instanceOne, eventMap)
 				eventPropagationService:registerEventHandlers(instanceTwo, eventMap)
-				eventPropagationService:deRegisterEventHandler(instanceOne, eventNameOne, args.phase)
+				eventPropagationService:deRegisterEventHandler(instanceOne, eventNameOne, handlerOne, args.phase)
 				local expected = {
 					__mode = "k",
 					[instanceOne] = {

@@ -69,14 +69,19 @@ function EventPropagationService:registerEventHandlers(instance: Instance, map: 
 	end
 end
 
-function EventPropagationService:deRegisterEventHandlers(instance: Instance)
-	self.eventHandlerRegistry[instance] = nil
+function EventPropagationService:deRegisterEventHandlers(instance: Instance, map: EventHandlerMap)
+	if not self.eventHandlerRegistry[instance] then
+		return
+	end
+	for eventName, v in pairs(map) do
+		self:deRegisterEventHandler(instance, eventName, v.handler, v.phase)
+	end
 end
 
-function EventPropagationService:deRegisterEventHandler(instance: Instance, eventName: string, phase: EventPhase?)
+function EventPropagationService:deRegisterEventHandler(instance: Instance, eventName: string, handler: EventHandler, phase: EventPhase?)
 	local resolvedPhase: EventPhase = phase or DEFAULT_PHASE
 	local eventPhases = getEventPhasesFromRegistry(self.eventHandlerRegistry, instance, eventName)
-	if eventPhases and eventPhases[resolvedPhase] then
+	if eventPhases and eventPhases[resolvedPhase] == handler then
 		eventPhases[resolvedPhase] = nil
 	end
 end
@@ -125,5 +130,6 @@ function EventPropagationService.new()
 end
 
 export type EventPropagationService = typeof(EventPropagationService.new())
+
 
 return EventPropagationService

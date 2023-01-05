@@ -76,13 +76,14 @@ EventPropagationService:registerEventHandlers(
     map: EventHandlerMap
 )
 ```
-Register a map of `EventHandler`s using an `EventHandlerMap`.
+Register multiple `EventHandler`s from an instance using an `EventHandlerMap`.
 
 ### deRegisterEventHandler
 ```lua
 EventPropagationService:deRegisterEventHandler(
     instance: Instance,
     eventName: string,
+    eventHandler: EventHandler,
     phase: EventPhase?
 )
 ```
@@ -90,9 +91,12 @@ De-register a single `EventHandler` from an `Instance` based on a phase. If phas
 
 ### deRegisterEventHandlers
 ```lua
-EventPropagationService:deRegisterEventHandlers(instance: Instance)
+EventPropagationService:deRegisterEventHandlers(
+    instance: Instance,
+    map: EventHandlerMap
+)
 ```
-De-register all `EventHandler`s from an `Instance`, regardless of phase.
+De-register a multiple `EventHandler`s from an instance using an `EventHandlerMap`.
 
 ### propagateEvent
 ```lua
