@@ -1,20 +1,15 @@
 <h1 align="center">Focus Navigation</h1>
 <div align="center">
 	<a href="https://travis-ci.org/Roblox/focus-navigation">
-		<img src="https://api.travis-ci.org/Roblox/focus-navigation.svg?branch=master" alt="Travis-CI Build Status" />
+		<img src="https://api.travis-ci.org/Roblox/focus-navigation.svg?branch=main" alt="Github Actions CI Status" />
 	</a>
-	<a href="https://coveralls.io/github/Roblox/focus-navigation?branch=master">
+	<a href="https://coveralls.io/github/Roblox/focus-navigation?branch=main">
 		<img src="https://coveralls.io/repos/github/Roblox/focus-navigation/badge.svg?branch=master" alt="Coveralls Coverage" />
 	</a>
-	<a href="https://roblox.github.io/focus-navigation">
+	<!-- <a href="https://roblox.github.io/focus-navigation">
 		<img src="https://img.shields.io/badge/docs-website-green.svg" alt="Documentation" />
-	</a>
+	</a> -->
 </div>
-
-<div align="center">
-	Fill in a tagline about Focus Navigation here
-</div>
-
 <div>&nbsp;</div>
 
 **Fill in a longer description about Focus Navigation here!**

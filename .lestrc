@@ -1,0 +1,6 @@
+{
+    "testsPath": "$configDir/lest",
+    "testRunner": "robloxdev-cli",
+    "rerun": 0,
+    "showPrefix": true
+}

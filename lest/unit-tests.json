@@ -1,0 +1,14 @@
+{
+    "run": "${configFolder}/../scripts/run-tests.lua",
+    "load": {
+        "model": "${configFolder}/../tests.project.json"
+    },
+    "fastFlags": {
+        "overrides": [
+            "EnableLoadModule=true"
+        ]
+    },
+    "testService": {
+        "errorExitCode": 201
+    }
+}
