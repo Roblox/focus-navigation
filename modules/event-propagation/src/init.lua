@@ -1,10 +1,17 @@
+--!strict
 -- Generator information:
--- Human name: Focus Navigation
--- Variable name: FocusNavigation
+-- Human name: EventPropagation
+-- Variable name: EventPropagation
 -- Repo name: focus-navigation
 
-local hello = require(script.hello)
+local Event = require(script.eventPropagationEvent)
+local EventPropagationService = require(script.eventPropagationService)
 
-return {
-	hello = hello,
-}
+export type EventPhase = Event.EventPhase
+export type Event = Event.Event
+
+export type EventHandler = EventPropagationService.EventHandler
+export type EventHandlerMap = EventPropagationService.EventHandlerMap
+export type EventPropagationService = EventPropagationService.EventPropagationService
+
+return EventPropagationService

@@ -1,4 +1,4 @@
 # Focus Navigation Changelog
 
 ## Unreleased Changes
-* *No changes*
+* Added event-propagation module ([#2](https://github.com/Roblox/focus-navigation/pull/2))
