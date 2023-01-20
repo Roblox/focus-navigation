@@ -3,4 +3,4 @@ members = ["modules/*"]
 
 [workspace.dependencies]
 JestGlobals = "github.com/roblox/jest-roblox@3.1.0"
-Jest = "github.com/roblox/jest-roblox@3.1.0"
+Jest = "github.com/roblox/jest-roblox@3.2.2"

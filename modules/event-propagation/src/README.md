@@ -19,33 +19,36 @@ The EventPhase represents the phase of the event propagation cycle a given Event
 
 ### Event
 ```lua
-type Event = {
+type Event<T> = {
     cancelled: boolean,
     phase: EventPhase,
     currentInstance: Instance,
     targetInstance: Instance,
     eventName: string,
+    eventData: T,
     cancel: () -> ()
 }
 ```
 `Event`s are passed to `EventHandler`s with the appropriate information when the `EventHandler` is called during event propagation. Note that each `EventHandler` is called with it's own `Event`, mutations to the Event will not be picked up by subsequent handlers.
 
+Events may have extra data attached to them when they're propagated, which can be read via the `eventData` field.
+
 ### EventHandler
 ```lua
-type EventHandler = (e: Event) -> ()
+type EventHandler<T> = (e: Event<T>) -> ()
 ```
 `EventHandler`s are simple functions that take an event as an argument, and return nothing.
 
 ### EventHandlerMap
 ```lua
-type EventHandlerMap = {
+type EventHandlerMap<T> = {
 	[string]: {
-		handler: EventHandler,
+		handler: EventHandler<T>,
 		phase: EventPhase?,
 	},
 }
 ```
-An `EventHandlerMap` gets used to register an `EventHandler` to an event in a given phase (or `"Bubble"` if ommitted). The keys of the map are the names of the events that will be used when `EventPropagationService:propagateEvent` is called.
+An `EventHandlerMap` gets used to register an `EventHandler` to an event in a given phase (or `"Bubble"` if omitted). The keys of the map are the names of the events that will be used when `EventPropagationService:propagateEvent` is called.
 
 ## API
 
@@ -66,7 +69,7 @@ EventPropagationService:registerEventHandler(
     phase: EventPhase?
 )
 ```
-Register an individual `EventHandler`, it requires an `Instance` to tie the handler to, the event handler itself, and the name of the event, which should be meaningful within the context of the application. An `EventPhase` optionally can be passed in to indicate which event propagation phase the handler should be triggered in, this defaults to `"Bubble"`.
+Register an individual `EventHandler`. This requires a target `Instance` that the handler will be associated with, the event handler itself, and the name of the event. Event names are equivalent to those provided in the `propagateEvent` method and will be meaningful within the context of the application. An `EventPhase` optionally can be passed in to indicate which event propagation phase the handler should be triggered in, this defaults to `"Bubble"`.
 
 ### registerEventHandlers
 
@@ -96,7 +99,7 @@ EventPropagationService:deRegisterEventHandlers(
     map: EventHandlerMap
 )
 ```
-De-register a multiple `EventHandler`s from an instance using an `EventHandlerMap`.
+De-register multiple `EventHandler`s from an instance using an `EventHandlerMap`.
 
 ### propagateEvent
 ```lua
@@ -108,9 +111,15 @@ EventPropagationService:propagateEvent(
 ```
 Propagate an event on a given `Instance` by name.
 
-behind the scenes it creates a list of ancestors with relevant registered eventHandlers is created. The list is then looped over from furthest ancestor to the target, calling all eventHandlers that are registered for the capture phase, the event handler for the target phase on the focused GuiObject is called, then the list is looped over from the target to the furthest ancestor to call all of the eventHandlers registered for the bubble phase. So in essence the phase order is Capture → Target → Bubble. It should be noted that the target phase is special in that the only handler that runs during the target phase is the handler on the currently focused element. These phases and their meaning are based on those from the Web API for event propagation.
+Behind the scenes, it creates a list of ancestors with relevant registered eventHandlers. The list is then processed as follows:
 
-**Note**: The event can be propagated in `silent` mode which will only call `EventHandler`s on the specified instance. This mode is useful for migrating from a non-event-propagation system to an event propagation system.
+1. Looping from furthest ancestor to the target, call all eventHandlers that are registered for the Capture phase
+2. Call the event handler for the Target phase on the target `Instance` provided
+3. Looping from the target to the furthest ancestor, call all of the eventHandlers registered for the Bubble phase.
+
+In essence, the phase order is Capture → Target → Bubble. It should be noted that the Target phase is special: the only handler that runs during the Target phase is the handler on the currently focused element. These phases and their meaning are based on those from the Web API for event propagation.
+
+**Note**: Events can optionally be propagated in `silent` mode, which will only call `EventHandler`s on the target instance. This mode is useful for migrating from a non-event-propagation system to an event propagation system.
 
 ## Usage
 ```lua

@@ -14,15 +14,31 @@ describe("EventPropagationEvent", function()
 		local currentInstance = Instance.new("Frame")
 		local eventName = "testEvent"
 		local phase = "Bubble"
-		local event = Event.new(targetInstance, currentInstance, eventName, phase)
+		local event = Event.new(targetInstance, currentInstance, eventName, phase, { data = "hello" })
 		local expected = expect.objectContaining({
 			targetInstance = targetInstance,
 			currentInstance = currentInstance,
 			eventName = eventName,
 			phase = phase,
+			eventData = { data = "hello" },
 			cancelled = false,
 		})
 		expect(event).toEqual(expected)
+	end)
+
+	it("should not allow mutation of eventData", function()
+		local targetInstance = Instance.new("Frame")
+		local currentInstance = Instance.new("Frame")
+		local eventName = "testEvent"
+		local phase = "Bubble"
+		local data = {
+			foo = "bar",
+		}
+		local event = Event.new(targetInstance, currentInstance, eventName, phase, data)
+
+		expect(function()
+			event.eventData.foo = "baz"
+		end).toThrow("attempt to modify a readonly table")
 	end)
 
 	describe("when cancel is called", function()
@@ -40,5 +56,3 @@ describe("EventPropagationEvent", function()
 		end)
 	end)
 end)
-
-return {}

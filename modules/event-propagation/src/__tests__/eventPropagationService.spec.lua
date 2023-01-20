@@ -27,7 +27,6 @@ describe("EventPropagationService", function()
 			}
 			eventPropagationService:registerEventHandlers(instance, eventHandlers)
 			local expected = {
-				__mode = "k",
 				[instance] = {
 					eventType1 = {
 						Capture = functionOne,
@@ -50,7 +49,6 @@ describe("EventPropagationService", function()
 			}
 			eventPropagationService:registerEventHandlers(instance, eventHandlers)
 			local expected = {
-				__mode = "k",
 				[instance] = {
 					eventType = {
 						Bubble = functionOne,
@@ -87,7 +85,6 @@ describe("EventPropagationService", function()
 			eventPropagationService:registerEventHandlers(instance1, eventHandlers1)
 			eventPropagationService:registerEventHandlers(instance2, eventHandlers2)
 			local expected = {
-				__mode = "k",
 				[instance1] = {
 					eventType1 = {
 						Capture = functionOne,
@@ -130,7 +127,6 @@ describe("EventPropagationService", function()
 			}
 			eventPropagationService:registerEventHandlers(instance, eventHandlers2)
 			local expected = {
-				__mode = "k",
 				[instance] = {
 					eventType1 = {
 						Capture = functionOne,
@@ -143,7 +139,7 @@ describe("EventPropagationService", function()
 			expect(eventPropagationService.eventHandlerRegistry).toEqual(expected)
 		end)
 	end)
-	describe("deRegisterEventHandlers", function()
+	describe("deregisterEventHandlers", function()
 		it("should remove the eventHandlers for a Instance", function()
 			local eventPropagationService = EventPropagationService.new()
 			local instance = Instance.new("Frame")
@@ -155,7 +151,6 @@ describe("EventPropagationService", function()
 			}
 			eventPropagationService:registerEventHandlers(instance, eventHandlers)
 			local expectedRegistryWithHandler = {
-				__mode = "k",
 				[instance] = {
 					eventType = {
 						Bubble = handler,
@@ -163,9 +158,8 @@ describe("EventPropagationService", function()
 				},
 			}
 			expect(eventPropagationService.eventHandlerRegistry).toEqual(expectedRegistryWithHandler)
-			eventPropagationService:deRegisterEventHandlers(instance, eventHandlers)
+			eventPropagationService:deregisterEventHandlers(instance, eventHandlers)
 			local expectedRegistryWithoutHandler = {
-				__mode = "k",
 				[instance] = {
 					eventType = {
 						Bubble = nil,
@@ -187,7 +181,6 @@ describe("EventPropagationService", function()
 			local instance2 = Instance.new("Frame")
 			eventPropagationService:registerEventHandlers(instance2, eventHandlers)
 			local expectedRegistryWithHandlers = {
-				__mode = "k",
 				[instance] = {
 					eventType = {
 						Bubble = handler,
@@ -200,9 +193,8 @@ describe("EventPropagationService", function()
 				},
 			}
 			expect(eventPropagationService.eventHandlerRegistry).toEqual(expectedRegistryWithHandlers)
-			eventPropagationService:deRegisterEventHandlers(instance, eventHandlers)
+			eventPropagationService:deregisterEventHandlers(instance, eventHandlers)
 			local expectedRegistryWithoutHandlers = {
-				__mode = "k",
 				[instance2] = {
 					eventType = {
 						Bubble = handler,
@@ -229,7 +221,6 @@ describe("EventPropagationService", function()
 			local eventName = "eventName"
 			eventPropagationService:registerEventHandler(instance, eventName, handler, args.phase)
 			local expected = {
-				__mode = "k",
 				[instance] = {
 					[eventName] = {
 						[args.phase] = handler,
@@ -247,7 +238,6 @@ describe("EventPropagationService", function()
 				local eventName = "eventName"
 				eventPropagationService:registerEventHandler(instance, eventName, handler)
 				local expected = {
-					__mode = "k",
 					[instance] = {
 						[eventName] = {
 							Bubble = handler,
@@ -286,7 +276,6 @@ describe("EventPropagationService", function()
 				local eventNameThree = "eventNameThree"
 				eventPropagationService:registerEventHandler(instanceOne, eventNameThree, handlerOne, args.phase)
 				local expected = {
-					__mode = "k",
 					[instanceOne] = {
 						[eventNameOne] = {
 							Capture = handlerOne,
@@ -311,7 +300,7 @@ describe("EventPropagationService", function()
 			end
 		)
 	end)
-	describe("deRegisterEventHandler", function()
+	describe("deregisterEventHandler", function()
 		it.each({
 			{ phase = "Bubble" },
 			{ phase = "Capture" },
@@ -325,7 +314,6 @@ describe("EventPropagationService", function()
 				local eventName = "eventName"
 				eventPropagationService:registerEventHandler(instance, eventName, handler, args.phase)
 				local expectedRegistryWithHandler = {
-					__mode = "k",
 					[instance] = {
 						[eventName] = {
 							[args.phase] = handler,
@@ -333,9 +321,8 @@ describe("EventPropagationService", function()
 					},
 				}
 				expect(eventPropagationService.eventHandlerRegistry).toEqual(expectedRegistryWithHandler)
-				eventPropagationService:deRegisterEventHandler(instance, eventName, handler, args.phase)
+				eventPropagationService:deregisterEventHandler(instance, eventName, handler, args.phase)
 				local expectedRegistryWithoutHandler = {
-					__mode = "k",
 					[instance] = {
 						[eventName] = {},
 					},
@@ -353,7 +340,6 @@ describe("EventPropagationService", function()
 				local eventName = "eventName"
 				eventPropagationService:registerEventHandler(instance, eventName, handler)
 				local expectedRegistryWithHandlers = {
-					__mode = "k",
 					[instance] = {
 						[eventName] = {
 							Bubble = handler,
@@ -361,9 +347,8 @@ describe("EventPropagationService", function()
 					},
 				}
 				expect(eventPropagationService.eventHandlerRegistry).toEqual(expectedRegistryWithHandlers)
-				eventPropagationService:deRegisterEventHandler(instance, eventName, handler)
+				eventPropagationService:deregisterEventHandler(instance, eventName, handler)
 				local expectedRegistryWithoutHandlers = {
-					__mode = "k",
 					[instance] = {
 						[eventName] = {},
 					},
@@ -377,7 +362,7 @@ describe("EventPropagationService", function()
 			{ phase = "Capture" },
 			{ phase = "Target" },
 		})(
-			"should leave other eventHandlers intact while deRegistering an event handler of a given eventName for a Instance in the $phase phase",
+			"should leave other eventHandlers intact while deregistering an event handler of a given eventName for a Instance in the $phase phase",
 			function(args)
 				local eventPropagationService = EventPropagationService.new()
 				local instanceOne = Instance.new("Frame")
@@ -397,9 +382,8 @@ describe("EventPropagationService", function()
 				}
 				eventPropagationService:registerEventHandlers(instanceOne, eventMap)
 				eventPropagationService:registerEventHandlers(instanceTwo, eventMap)
-				eventPropagationService:deRegisterEventHandler(instanceOne, eventNameOne, handlerOne, args.phase)
+				eventPropagationService:deregisterEventHandler(instanceOne, eventNameOne, handlerOne, args.phase)
 				local expected = {
-					__mode = "k",
 					[instanceOne] = {
 						[eventNameOne] = {},
 						[eventNameTwo] = {
@@ -729,7 +713,7 @@ describe("EventPropagationService", function()
 					eventPropagationService:registerEventHandlers(instanceOne, eventHandlerMapOne)
 					eventPropagationService:registerEventHandlers(instanceTwo, eventHandlerMapTwo)
 					eventPropagationService:registerEventHandlers(instanceThree, eventHandlerMapThree)
-					eventPropagationService:propagateEvent(instanceThree, eventName, true)
+					eventPropagationService:propagateEvent(instanceThree, eventName, nil, true)
 					expect(handler.mock.calls).toEqual({
 						{
 							expect.objectContaining({
@@ -743,5 +727,3 @@ describe("EventPropagationService", function()
 		end)
 	end)
 end)
-
-return {}

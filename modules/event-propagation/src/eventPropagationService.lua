@@ -2,23 +2,92 @@
 local eventPropagationEvent = require(script.Parent.eventPropagationEvent)
 local Event = eventPropagationEvent
 type EventPhase = eventPropagationEvent.EventPhase
-type Event = eventPropagationEvent.Event
+type Event<T> = eventPropagationEvent.Event<T>
 
-export type EventHandler = (e: Event) -> ()
+export type EventHandler<T> = (e: Event<T>) -> ()
 
-export type EventHandlerMap = {
+export type EventHandlerMap<T> = {
 	[string]: {
-		handler: EventHandler,
+		handler: EventHandler<T>,
 		phase: EventPhase?,
 	},
 }
 
-type EventHandlerRegistry = {
-	[Instance]: {
-		[string]: {
-			[EventPhase]: EventHandler?,
-		}?,
-	}?,
+type EventHandlers<T> = {
+	[EventPhase]: EventHandler<T>,
+}
+
+type EventHandlersByName<T> = {
+	[string]: EventHandlers<T>,
+}
+
+type EventHandlerRegistry<T> = {
+	[Instance]: EventHandlersByName<T>,
+}
+
+export type EventPropagationService<T> = {
+	registerEventHandler: (
+		self: EventPropagationService<T>,
+		instance: Instance,
+		eventName: string,
+		eventHandler: EventHandler<T>,
+		phase: EventPhase?
+	) -> (),
+	registerEventHandlers: (self: EventPropagationService<T>, instance: Instance, map: EventHandlerMap<T>) -> (),
+	deregisterEventHandlers: (self: EventPropagationService<T>, instance: Instance, map: EventHandlerMap<T>) -> (),
+	deregisterEventHandler: (
+		self: EventPropagationService<T>,
+		instance: Instance,
+		eventName: string,
+		handler: EventHandler<T>,
+		phase: EventPhase?
+	) -> (),
+	propagateEvent: (
+		self: EventPropagationService<T>,
+		instance: Instance,
+		eventName: string,
+		eventData: T,
+		silent: boolean
+	) -> (),
+}
+
+type EventPropagationServicePrivate = {
+	eventHandlerRegistry: EventHandlerRegistry<any>,
+	registerEventHandler: (
+		self: EventPropagationServicePrivate,
+		instance: Instance,
+		eventName: string,
+		eventHandler: EventHandler<any>,
+		phase: EventPhase?
+	) -> (),
+	registerEventHandlers: (
+		self: EventPropagationServicePrivate,
+		instance: Instance,
+		map: EventHandlerMap<any>
+	) -> (),
+	deregisterEventHandlers: (
+		self: EventPropagationServicePrivate,
+		instance: Instance,
+		map: EventHandlerMap<any>
+	) -> (),
+	deregisterEventHandler: (
+		self: EventPropagationServicePrivate,
+		instance: Instance,
+		eventName: string,
+		handler: EventHandler<any>,
+		phase: EventPhase?
+	) -> (),
+	propagateEvent: (
+		self: EventPropagationServicePrivate,
+		instance: Instance,
+		eventName: string,
+		eventData: any,
+		silent: boolean
+	) -> (),
+}
+
+type EventPropagationServiceStatics = {
+	new: <T>() -> EventPropagationService<T>,
 }
 
 local DEFAULT_PHASE: EventPhase = "Bubble"
@@ -31,27 +100,36 @@ local function getAncestors(instance: Instance)
 	return ancestors
 end
 
-local function getEventsFromRegistry(registry: EventHandlerRegistry, instance: Instance)
+local function getEventsFromRegistry<T>(registry: EventHandlerRegistry<T>, instance: Instance): EventHandlersByName<T>
 	return registry[instance]
 end
 
-local function getEventPhasesFromRegistry(registry: EventHandlerRegistry, instance: Instance, eventName: string)
+local function getEventPhasesFromRegistry<T>(
+	registry: EventHandlerRegistry<T>,
+	instance: Instance,
+	eventName: string
+): EventHandlers<T>?
 	local events = getEventsFromRegistry(registry, instance)
 	return if events then events[eventName] else nil
 end
 
-local function getEventHandler(registry: EventHandlerRegistry, instance: Instance, eventName: string, phase: EventPhase)
+local function getEventHandler<T>(
+	registry: EventHandlerRegistry<T>,
+	instance: Instance,
+	eventName: string,
+	phase: EventPhase
+): EventHandler<T>?
 	local eventPhases = getEventPhasesFromRegistry(registry, instance, eventName)
-	return if eventPhases then eventPhases[phase] else nil
+	return if eventPhases ~= nil then eventPhases[phase] else nil
 end
 
-local EventPropagationService = {}
-EventPropagationService.__index = EventPropagationService
+local EventPropagationService = {} :: EventPropagationServicePrivate & EventPropagationServiceStatics;
+(EventPropagationService :: any).__index = EventPropagationService
 
 function EventPropagationService:registerEventHandler(
 	instance: Instance,
 	eventName: string,
-	eventHandler: EventHandler,
+	eventHandler: EventHandler<any>,
 	phase: EventPhase?
 )
 	local resolvedPhase: EventPhase = phase or DEFAULT_PHASE
@@ -60,28 +138,28 @@ function EventPropagationService:registerEventHandler(
 	self.eventHandlerRegistry[instance][eventName][resolvedPhase] = eventHandler
 end
 
-function EventPropagationService:registerEventHandlers(instance: Instance, map: EventHandlerMap)
+function EventPropagationService:registerEventHandlers(instance: Instance, map: EventHandlerMap<any>)
 	if not self.eventHandlerRegistry[instance] then
 		self.eventHandlerRegistry[instance] = {}
 	end
-	for eventName, v in pairs(map) do
+	for eventName, v in map do
 		self:registerEventHandler(instance, eventName, v.handler, v.phase)
 	end
 end
 
-function EventPropagationService:deRegisterEventHandlers(instance: Instance, map: EventHandlerMap)
+function EventPropagationService:deregisterEventHandlers(instance: Instance, map: EventHandlerMap<any>)
 	if not self.eventHandlerRegistry[instance] then
 		return
 	end
-	for eventName, v in pairs(map) do
-		self:deRegisterEventHandler(instance, eventName, v.handler, v.phase)
+	for eventName, v in map do
+		self:deregisterEventHandler(instance, eventName, v.handler, v.phase)
 	end
 end
 
-function EventPropagationService:deRegisterEventHandler(
+function EventPropagationService:deregisterEventHandler(
 	instance: Instance,
 	eventName: string,
-	handler: EventHandler,
+	handler: EventHandler<any>,
 	phase: EventPhase?
 )
 	local resolvedPhase: EventPhase = phase or DEFAULT_PHASE
@@ -91,18 +169,18 @@ function EventPropagationService:deRegisterEventHandler(
 	end
 end
 
-function EventPropagationService:propagateEvent(instance: Instance, eventName: string, silent: boolean)
+function EventPropagationService:propagateEvent(instance: Instance, eventName: string, eventData: any, silent: boolean)
 	local function runEventHandler(currentAncestor: Instance, phase: EventPhase)
 		local eventHandler = getEventHandler(self.eventHandlerRegistry, currentAncestor, eventName, phase)
 		if eventHandler then
-			local event = Event.new(instance, currentAncestor, eventName, phase)
+			local event = Event.new(instance, currentAncestor, eventName, phase, eventData)
 			eventHandler(event)
 			return event.cancelled
 		end
 		return false
 	end
 	local cancelled = false
-	local ancestors: { [number]: Instance } = if silent then { instance } else getAncestors(instance)
+	local ancestors: { Instance } = if silent then { instance } else getAncestors(instance)
 	for i = #ancestors, 1, -1 do
 		local ancestor = ancestors[i]
 		cancelled = runEventHandler(ancestor, "Capture")
@@ -123,17 +201,16 @@ function EventPropagationService:propagateEvent(instance: Instance, eventName: s
 	end
 end
 
-function EventPropagationService.new()
-	local eventHandlerRegistry = {}
-	eventHandlerRegistry.__mode = "k"
+function EventPropagationService.new<T>(): EventPropagationService<T>
+	local eventHandlerRegistry = setmetatable({}, {
+		__mode = "k",
+	})
 
 	local self = {
 		eventHandlerRegistry = eventHandlerRegistry,
 	}
 	setmetatable(self, EventPropagationService)
-	return self
+	return self :: any
 end
-
-export type EventPropagationService = typeof(EventPropagationService.new())
 
 return EventPropagationService
