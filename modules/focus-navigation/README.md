@@ -135,12 +135,41 @@ Move focus to the target GuiObject. Providing a value of `true` for the `silent`
 
 ### Observable Fields
 🛠 *Under construction* 🛠
-
-#### activeInputDevice
+The `FocusNavigationService` also exposes observable properties 
 
 #### activeEventMap
+```lua
+FocusNavigationService.activeEventMap: Observable<GuiObject?>
+```
+
+An observable property that provides the currently active mapping of input KeyCodes to focus navigation events. The active event map is composed from all events associated with the currently-focused `GuiObject` and its ancestors, where elements deeper in the tree will override events bound to their ancestors.
+
+Subscribe to this value with an Observer object as per the [ZenObservable API](https://github.com/zenparsing/zen-observable#observablesubscribeobserver).
+```lua
+local subscription = FocusNavigation.activeEventMap:subscribe({
+    next = function(evenMap)
+        for keyCode, event in eventMap do
+            print(string.format("trigger %s when pressing %s", event, tostring(keyCode))
+        end
+    end
+})
+```
 
 #### focusedInstance
+```lua
+FocusNavigationService.focusedInstance: Observable<GuiObject?>
+```
+
+An observable property that tracks the currently focused instance. This is similar to connecting directly to the  `GuiService:GetPropertyChanged` signal for the relevant property, but provides a nicer interface and automatically connects to the right `GuiService` property.
+
+Subscribe to this value with an Observer object as per the [ZenObservable API](https://github.com/zenparsing/zen-observable#observablesubscribeobserver).
+```lua
+local subscription = FocusNavigation.focusedInstance:subscribe({
+    next = function(newFocus)
+        print(if newFocus then newFocus.Name else "(None)")
+    end
+})
+```
 
 ## Usage
 🛠 *Under construction* 🛠

@@ -5,9 +5,9 @@ local ZenObservable = require(Packages.ZenObservable)
 local Observable = ZenObservable.Observable
 
 local types = require(script.Parent.types)
-type InputDevice = types.InputDevice
 type EventMap = types.EventMap
 type EventData = types.EventData
+type EngineInterface = types.EngineInterface
 
 type EventPhase = EventPropagationService.EventPhase
 type Event<T> = EventPropagationService.Event<T>
@@ -26,25 +26,25 @@ export type FocusNavigationService = {
 	focusGuiObject: (self: FocusNavigationService, GuiObject, boolean) -> (),
 	teardown: (self: FocusNavigationService) -> (),
 
-	activeInputDevice: ZenObservable.Observable<InputDevice>,
 	activeEventMap: ZenObservable.Observable<EventMap>,
 	focusedGuiObject: ZenObservable.Observable<GuiObject?>,
 }
 
 type FocusNavigationServicePrivate = {
-	_eventPropagationService: EventPropagationService<EventData>,
 	_eventMapByInstance: { [Instance]: EventMap },
-	_guiService: GuiService,
-	_focusProperty: "SelectedObject" | "SelectedCoreObject",
+	_eventPropagationService: EventPropagationService<EventData>,
+	_engineInterface: EngineInterface,
 	_engineEventConnections: { RBXScriptConnection },
 
 	_lastFocused: GuiObject?,
 	_silentFocusTarget: GuiObject?,
 	_silentBlurTarget: GuiObject?,
 
-	_connectToInputEvents: (FocusNavigationServicePrivate, UserInputService) -> (),
+	_activeEventMapObservers: { ZenObservable.Observer<EventMap> },
+	_focusedGuiObjectObservers: { ZenObservable.Observer<GuiObject> },
+
+	_connectToInputEvents: (FocusNavigationServicePrivate) -> (),
 	_fireInputEvent: (FocusNavigationServicePrivate, GuiObject, InputObject) -> (),
-	_getFocusedGuiObject: (FocusNavigationServicePrivate) -> GuiObject?,
 	_updateActiveEventMap: (FocusNavigationServicePrivate) -> (),
 
 	registerEventMap: (self: FocusNavigationServicePrivate, GuiObject, EventMap) -> (),
@@ -56,58 +56,59 @@ type FocusNavigationServicePrivate = {
 	focusGuiObject: (self: FocusNavigationServicePrivate, GuiObject, boolean) -> (),
 	teardown: (self: FocusNavigationServicePrivate) -> (),
 
-	activeInputDevice: ZenObservable.Observable<InputDevice>,
 	activeEventMap: ZenObservable.Observable<EventMap>,
 	focusedGuiObject: ZenObservable.Observable<GuiObject?>,
 }
 
 type FocusNavigationServiceStatics = {
-	new: (boolean, UserInputService?, GuiService?) -> FocusNavigationService,
+	new: (EngineInterface) -> FocusNavigationService,
 }
+
+local function updateAllObservers(observerList, value)
+	for _, observer in observerList do
+		observer:next(value)
+	end
+end
 
 local FocusNavigationService = {} :: FocusNavigationServicePrivate & FocusNavigationServiceStatics;
 (FocusNavigationService :: any).__index = FocusNavigationService
 
-function FocusNavigationService.new(isCoreGui: boolean, userInputService: UserInputService?, guiService: GuiService?)
-	local resolvedGuiService: GuiService = guiService or game:GetService("GuiService")
-	local focusProperty = if isCoreGui then "SelectedCoreObject" else "SelectedObject"
+function FocusNavigationService.new(engineInterface: EngineInterface)
+	local activeEventMapObservers = {}
+	local focusedGuiObjectObservers = {}
+
 	local self: FocusNavigationServicePrivate = setmetatable({
 		_eventPropagationService = EventPropagationService.new(),
-		_guiService = resolvedGuiService,
+		_engineInterface = engineInterface,
 
 		_eventMapByInstance = setmetatable({}, { __mode = "k" }),
 		_engineEventConnections = {},
 
-		_focusProperty = focusProperty,
-		_lastFocused = (resolvedGuiService :: any)[focusProperty],
+		_lastFocused = engineInterface.getSelection(),
 		_silentFocusTarget = nil,
 		_silentBlurTarget = nil,
 
-		activeInputDevice = Observable.new(function(_observer)
-			-- TODO: observer logic
+		_activeEventMapObservers = activeEventMapObservers,
+		_focusedGuiObjectObservers = focusedGuiObjectObservers,
+
+		activeEventMap = Observable.new(function(observer)
+			table.insert(activeEventMapObservers, observer)
 		end),
-		activeEventMap = Observable.new(function(_observer)
-			-- TODO: observer logic
-		end),
-		focusedInstance = Observable.new(function(_observer)
-			-- TODO: observer logic
+		focusedGuiObject = Observable.new(function(observer)
+			table.insert(focusedGuiObjectObservers, observer)
 		end),
 	}, FocusNavigationService) :: any
 
-	self:_connectToInputEvents(userInputService or game:GetService("UserInputService"))
+	self:_connectToInputEvents()
 
-	return (self :: any) :: FocusNavigationService
+	return self
 end
 
-function FocusNavigationService:_getFocusedGuiObject(): GuiObject?
-	return (self._guiService :: any)[self._focusProperty]
-end
-
-function FocusNavigationService:_fireInputEvent(focusedInstance: Instance, input: InputObject)
-	local eventsForInstance = self._eventMapByInstance[focusedInstance]
+function FocusNavigationService:_fireInputEvent(focusedGuiObject: GuiObject, input: InputObject)
+	local eventsForInstance = self._eventMapByInstance[focusedGuiObject]
 	local event = if eventsForInstance and input.KeyCode then eventsForInstance[input.KeyCode] else nil
 	if event then
-		self._eventPropagationService:propagateEvent(focusedInstance, event, {
+		self._eventPropagationService:propagateEvent(focusedGuiObject, event, {
 			Delta = input.Delta,
 			KeyCode = input.KeyCode,
 			Position = input.Position,
@@ -120,24 +121,25 @@ function FocusNavigationService:_fireInputEvent(focusedInstance: Instance, input
 	end
 end
 
-function FocusNavigationService:_connectToInputEvents(userInputService: UserInputService)
-	-- Which inputs are we connecting to? Does it need to be part of the phases?
+function FocusNavigationService:_connectToInputEvents()
+	-- Connect to UserInputService.InputBegan/Changed/Ended
 	local function forwardInputEvent(input, wasProcessed)
 		-- TODO: I don't think we want to be listening to any already-captured
 		-- events (like the left click from clicking a button with a mouse), but
 		-- maybe the user needs more control?
-		local currentFocus = self:_getFocusedGuiObject()
+		local currentFocus = self._engineInterface.getSelection()
 		if currentFocus and not wasProcessed then
 			self:_fireInputEvent(currentFocus, input)
 		end
 	end
-	table.insert(self._engineEventConnections, userInputService.InputBegan:Connect(forwardInputEvent))
-	table.insert(self._engineEventConnections, userInputService.InputChanged:Connect(forwardInputEvent))
-	table.insert(self._engineEventConnections, userInputService.InputEnded:Connect(forwardInputEvent))
+	table.insert(self._engineEventConnections, self._engineInterface.InputBegan:Connect(forwardInputEvent))
+	table.insert(self._engineEventConnections, self._engineInterface.InputChanged:Connect(forwardInputEvent))
+	table.insert(self._engineEventConnections, self._engineInterface.InputEnded:Connect(forwardInputEvent))
 
+	-- Connect to change signal for GuiService.Selected[Core]Object
 	local function onFocusChanged()
 		local previousFocus = self._lastFocused
-		local nextFocus = self:_getFocusedGuiObject()
+		local nextFocus = self._engineInterface.getSelection()
 
 		-- TODO: what happens if a selection change happens in response to a blur event?
 		if previousFocus then
@@ -145,6 +147,8 @@ function FocusNavigationService:_connectToInputEvents(userInputService: UserInpu
 			self._eventPropagationService:propagateEvent(previousFocus, "blur", nil, silent)
 			self._silentBlurTarget = nil
 		end
+		updateAllObservers(self._focusedGuiObjectObservers, nextFocus)
+		self:_updateActiveEventMap()
 		if nextFocus then
 			local silent = nextFocus == self._silentFocusTarget
 			self._eventPropagationService:propagateEvent(nextFocus, "focus", nil, silent)
@@ -153,10 +157,33 @@ function FocusNavigationService:_connectToInputEvents(userInputService: UserInpu
 
 		self._lastFocused = nextFocus
 	end
-	table.insert(
-		self._engineEventConnections,
-		self._guiService:GetPropertyChangedSignal(self._focusProperty):Connect(onFocusChanged)
-	)
+	table.insert(self._engineEventConnections, self._engineInterface.SelectionChanged:Connect(onFocusChanged))
+end
+
+function FocusNavigationService:_updateActiveEventMap()
+	local focused = self._engineInterface.getSelection()
+
+	-- No need to calculate if nothing is focused or nobody is listening
+	if #self._activeEventMapObservers == 0 or not focused then
+		return
+	end
+
+	local activeEventMap: EventMap = self._eventMapByInstance[focused :: GuiObject] or {}
+	local ancestor = (focused :: GuiObject).Parent
+	while ancestor do
+		local ancestorEventMap = self._eventMapByInstance[ancestor] :: EventMap?
+		if ancestorEventMap then
+			for keyCode, eventName in ancestorEventMap do
+				-- Since we're going up the tree, only include non-overridden
+				if not activeEventMap[keyCode] then
+					activeEventMap[keyCode] = eventName
+				end
+			end
+		end
+		ancestor = ancestor.Parent
+	end
+
+	updateAllObservers(self._activeEventMapObservers, activeEventMap)
 end
 
 function FocusNavigationService:registerEventMap(guiObject: GuiObject, eventMap: EventMap)
@@ -168,6 +195,7 @@ function FocusNavigationService:registerEventMap(guiObject: GuiObject, eventMap:
 		updatedEventMap[keyCode] = name
 	end
 	self._eventMapByInstance[guiObject] = updatedEventMap
+	self:_updateActiveEventMap()
 end
 
 function FocusNavigationService:deregisterEventMap(guiObject: GuiObject, eventMap: EventMap)
@@ -181,6 +209,7 @@ function FocusNavigationService:deregisterEventMap(guiObject: GuiObject, eventMa
 		end
 	end
 	self._eventMapByInstance[guiObject] = updatedEventMap
+	self:_updateActiveEventMap()
 end
 
 function FocusNavigationService:registerEventHandler(
@@ -216,7 +245,7 @@ function FocusNavigationService:focusGuiObject(guiObject: GuiObject, silent: boo
 	if silent then
 		-- If we've silenced the event, we need to identify which guiObjects
 		-- we're going to and from so that we can respond accordingly
-		self._silentBlurTarget = self:_getFocusedGuiObject()
+		self._silentBlurTarget = self._engineInterface.getSelection()
 		self._silentFocusTarget = guiObject :: GuiObject?
 	else
 		-- Otherwise, clear the state to make sure we're somewhat resilient to
@@ -224,7 +253,7 @@ function FocusNavigationService:focusGuiObject(guiObject: GuiObject, silent: boo
 		self._silentBlurTarget = nil
 		self._silentFocusTarget = nil
 	end
-	(self._guiService :: any)[self._focusProperty] = guiObject
+	self._engineInterface.setSelection(guiObject)
 end
 
 function FocusNavigationService:teardown()

@@ -1,4 +1,13 @@
 --!strict
+export type EngineInterface = {
+	getSelection: () -> GuiObject?,
+	setSelection: (guiObject: GuiObject?) -> (),
+	SelectionChanged: RBXScriptSignal,
+	InputBegan: RBXScriptSignal,
+	InputChanged: RBXScriptSignal,
+	InputEnded: RBXScriptSignal,
+}
+
 export type InputEvent = {
 	KeyCode: Enum.KeyCode,
 	UserInputState: Enum.UserInputState,
@@ -9,7 +18,7 @@ export type InputEvent = {
 
 -- TODO: Union with whatever data we end up using for focus/blur events
 export type EventData = InputEvent | nil
-export type InputDevice = "Gamepad" | "Keyboard" | "Remote"
+
 export type EventMap = {
 	[Enum.KeyCode]: string,
 }
