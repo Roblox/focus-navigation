@@ -9,6 +9,11 @@
             "EnableLoadModule=true"
         ]
     },
+    "lua": {
+        "globals": [
+            "RTL_SKIP_AUTO_CLEANUP=true"
+        ]
+    },
     "testService": {
         "errorExitCode": 201
     }

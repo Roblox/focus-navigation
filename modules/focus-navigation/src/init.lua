@@ -16,7 +16,10 @@ export type EventHandler = EventPropagation.EventHandler<EventData>
 export type EventHandlerMap = EventPropagation.EventHandlerMap<EventData>
 
 -- FocusNavigationService types
+export type EngineInterface = types.EngineInterface
+export type InputEvent = types.InputEvent
 export type EventMap = types.EventMap
+export type FocusNavigationService = FocusNavigationService.FocusNavigationService
 
 return {
 	FocusNavigationService = FocusNavigationService,

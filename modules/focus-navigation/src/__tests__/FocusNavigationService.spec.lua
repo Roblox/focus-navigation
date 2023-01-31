@@ -736,4 +736,26 @@ describe("observable properties", function()
 		})
 		expect(observer.next).toHaveBeenCalledTimes(4)
 	end)
+
+	it("should update activeEventMap when switching back to empty after a subscription was added", function()
+		local observer = {
+			next = jest.fn(),
+		}
+
+		local eventMap = { [Enum.KeyCode.ButtonX] = "foo" }
+		focusNavigationService:registerEventMap(tree.leftButton, eventMap)
+		focusNavigationService:focusGuiObject(tree.leftButton, false)
+		-- not subscribed yet
+		expect(observer.next).toHaveBeenCalledTimes(0)
+
+		local subscription = focusNavigationService.activeEventMap:subscribe(observer)
+		focusNavigationService:deregisterEventMap(tree.leftButton, eventMap)
+
+		expect(observer.next).toHaveBeenCalledTimes(1)
+		expect(observer.next).toHaveBeenCalledWith(expect.anything(), {})
+
+		subscription:unsubscribe()
+		focusNavigationService:registerEventMap(tree.leftButton, eventMap)
+		expect(observer.next).toHaveBeenCalledTimes(1)
+	end)
 end)

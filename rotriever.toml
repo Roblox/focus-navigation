@@ -2,5 +2,6 @@
 members = ["modules/*"]
 
 [workspace.dependencies]
+Collections = "github.com/roblox/luau-polyfill@1.2"
 JestGlobals = "github.com/roblox/jest-roblox@3.1.0"
 Jest = "github.com/roblox/jest-roblox@3.2.2"

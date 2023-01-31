@@ -10,6 +10,6 @@ EventPropagation = { path = "../event-propagation" }
 ZenObservable = "github.com/roblox/zen-observable-lua@0.8.16-roblox.0"
 
 [dev_dependencies]
-Collections = "github.com/roblox/luau-polyfill@1.2"
+Collections = { workspace = true }
 JestGlobals = { workspace = true }
 Jest = { workspace = true }

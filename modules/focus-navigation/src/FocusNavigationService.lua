@@ -36,6 +36,7 @@ type FocusNavigationServicePrivate = {
 	_engineInterface: EngineInterface,
 	_engineEventConnections: { RBXScriptConnection },
 
+	_lastEventMap: EventMap,
 	_lastFocused: GuiObject?,
 	_silentFocusTarget: GuiObject?,
 	_silentBlurTarget: GuiObject?,
@@ -64,6 +65,28 @@ type FocusNavigationServiceStatics = {
 	new: (EngineInterface) -> FocusNavigationService,
 }
 
+local function shallowEqual(a: EventMap, b: EventMap): boolean
+	for key, value in a do
+		if b[key] ~= value then
+			return false
+		end
+	end
+
+	for key, value in b do
+		if a[key] ~= value then
+			return false
+		end
+	end
+
+	return true
+end
+
+local function completeAllObservers(observerList)
+	for _, observer in observerList do
+		observer:complete()
+	end
+end
+
 local function updateAllObservers(observerList, value)
 	for _, observer in observerList do
 		observer:next(value)
@@ -84,6 +107,7 @@ function FocusNavigationService.new(engineInterface: EngineInterface)
 		_eventMapByInstance = setmetatable({}, { __mode = "k" }),
 		_engineEventConnections = {},
 
+		_lastEventMap = {},
 		_lastFocused = engineInterface.getSelection(),
 		_silentFocusTarget = nil,
 		_silentBlurTarget = nil,
@@ -161,29 +185,32 @@ function FocusNavigationService:_connectToInputEvents()
 end
 
 function FocusNavigationService:_updateActiveEventMap()
+	local activeEventMap
 	local focused = self._engineInterface.getSelection()
-
-	-- No need to calculate if nothing is focused or nobody is listening
-	if #self._activeEventMapObservers == 0 or not focused then
-		return
-	end
-
-	local activeEventMap: EventMap = self._eventMapByInstance[focused :: GuiObject] or {}
-	local ancestor = (focused :: GuiObject).Parent
-	while ancestor do
-		local ancestorEventMap = self._eventMapByInstance[ancestor] :: EventMap?
-		if ancestorEventMap then
-			for keyCode, eventName in ancestorEventMap do
-				-- Since we're going up the tree, only include non-overridden
-				if not activeEventMap[keyCode] then
-					activeEventMap[keyCode] = eventName
+	if focused then
+		local currentMap = self._eventMapByInstance[focused :: GuiObject]
+		activeEventMap = if currentMap then table.clone(currentMap) else {} :: EventMap
+		local ancestor = (focused :: GuiObject).Parent
+		while ancestor do
+			local ancestorEventMap = self._eventMapByInstance[ancestor] :: EventMap?
+			if ancestorEventMap then
+				for keyCode, eventName in ancestorEventMap do
+					-- Since we're going up the tree, only include non-overridden
+					if not activeEventMap[keyCode] then
+						activeEventMap[keyCode] = eventName
+					end
 				end
 			end
+			ancestor = ancestor.Parent
 		end
-		ancestor = ancestor.Parent
+	else
+		activeEventMap = {}
 	end
 
-	updateAllObservers(self._activeEventMapObservers, activeEventMap)
+	if not shallowEqual(self._lastEventMap, activeEventMap) then
+		updateAllObservers(self._activeEventMapObservers, activeEventMap)
+	end
+	self._lastEventMap = activeEventMap
 end
 
 function FocusNavigationService:registerEventMap(guiObject: GuiObject, eventMap: EventMap)
@@ -260,6 +287,8 @@ function FocusNavigationService:teardown()
 	for _, connection in self._engineEventConnections do
 		connection:Disconnect()
 	end
+	completeAllObservers(self._activeEventMapObservers)
+	completeAllObservers(self._focusedGuiObjectObservers)
 end
 
 return FocusNavigationService
