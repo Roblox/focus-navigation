@@ -1,8 +1,10 @@
 --!strict
 local Packages = script.Parent.Parent
 local EventPropagationService = require(Packages.EventPropagation)
-local ZenObservable = require(Packages.ZenObservable)
-local Observable = ZenObservable.Observable
+local Utils = require(Packages.Utils)
+
+local createSignal = Utils.createSignal
+local shallowEqual = Utils.shallowEqual
 
 local types = require(script.Parent.types)
 type EventMap = types.EventMap
@@ -26,8 +28,8 @@ export type FocusNavigationService = {
 	focusGuiObject: (self: FocusNavigationService, GuiObject, boolean) -> (),
 	teardown: (self: FocusNavigationService) -> (),
 
-	activeEventMap: ZenObservable.Observable<EventMap>,
-	focusedGuiObject: ZenObservable.Observable<GuiObject?>,
+	activeEventMap: Utils.Signal<EventMap>,
+	focusedGuiObject: Utils.Signal<GuiObject?>,
 }
 
 type FocusNavigationServicePrivate = {
@@ -36,13 +38,11 @@ type FocusNavigationServicePrivate = {
 	_engineInterface: EngineInterface,
 	_engineEventConnections: { RBXScriptConnection },
 
-	_lastEventMap: EventMap,
-	_lastFocused: GuiObject?,
 	_silentFocusTarget: GuiObject?,
 	_silentBlurTarget: GuiObject?,
 
-	_activeEventMapObservers: { ZenObservable.Observer<EventMap> },
-	_focusedGuiObjectObservers: { ZenObservable.Observer<GuiObject> },
+	_fireActiveEventMapSignal: Utils.FireSignal<EventMap>,
+	_fireFocusedGuiObjectSignal: Utils.FireSignal<GuiObject?>,
 
 	_connectToInputEvents: (FocusNavigationServicePrivate) -> (),
 	_fireInputEvent: (FocusNavigationServicePrivate, GuiObject, InputObject) -> (),
@@ -57,48 +57,20 @@ type FocusNavigationServicePrivate = {
 	focusGuiObject: (self: FocusNavigationServicePrivate, GuiObject, boolean) -> (),
 	teardown: (self: FocusNavigationServicePrivate) -> (),
 
-	activeEventMap: ZenObservable.Observable<EventMap>,
-	focusedGuiObject: ZenObservable.Observable<GuiObject?>,
+	activeEventMap: Utils.Signal<EventMap>,
+	focusedGuiObject: Utils.Signal<GuiObject?>,
 }
 
 type FocusNavigationServiceStatics = {
 	new: (EngineInterface) -> FocusNavigationService,
 }
 
-local function shallowEqual(a: EventMap, b: EventMap): boolean
-	for key, value in a do
-		if b[key] ~= value then
-			return false
-		end
-	end
-
-	for key, value in b do
-		if a[key] ~= value then
-			return false
-		end
-	end
-
-	return true
-end
-
-local function completeAllObservers(observerList)
-	for _, observer in observerList do
-		observer:complete()
-	end
-end
-
-local function updateAllObservers(observerList, value)
-	for _, observer in observerList do
-		observer:next(value)
-	end
-end
-
 local FocusNavigationService = {} :: FocusNavigationServicePrivate & FocusNavigationServiceStatics;
 (FocusNavigationService :: any).__index = FocusNavigationService
 
 function FocusNavigationService.new(engineInterface: EngineInterface)
-	local activeEventMapObservers = {}
-	local focusedGuiObjectObservers = {}
+	local activeEventMapSignal, fireActiveEventMapSignal = createSignal({})
+	local focusedGuiObjectSignal, fireFocusedGuiObjectSignal = createSignal(engineInterface.getSelection())
 
 	local self: FocusNavigationServicePrivate = setmetatable({
 		_eventPropagationService = EventPropagationService.new(),
@@ -107,20 +79,14 @@ function FocusNavigationService.new(engineInterface: EngineInterface)
 		_eventMapByInstance = setmetatable({}, { __mode = "k" }),
 		_engineEventConnections = {},
 
-		_lastEventMap = {},
-		_lastFocused = engineInterface.getSelection(),
 		_silentFocusTarget = nil,
 		_silentBlurTarget = nil,
 
-		_activeEventMapObservers = activeEventMapObservers,
-		_focusedGuiObjectObservers = focusedGuiObjectObservers,
+		_fireActiveEventMapSignal = fireActiveEventMapSignal,
+		_fireFocusedGuiObjectSignal = fireFocusedGuiObjectSignal,
 
-		activeEventMap = Observable.new(function(observer)
-			table.insert(activeEventMapObservers, observer)
-		end),
-		focusedGuiObject = Observable.new(function(observer)
-			table.insert(focusedGuiObjectObservers, observer)
-		end),
+		activeEventMap = activeEventMapSignal,
+		focusedGuiObject = focusedGuiObjectSignal,
 	}, FocusNavigationService) :: any
 
 	self:_connectToInputEvents()
@@ -162,7 +128,7 @@ function FocusNavigationService:_connectToInputEvents()
 
 	-- Connect to change signal for GuiService.Selected[Core]Object
 	local function onFocusChanged()
-		local previousFocus = self._lastFocused
+		local previousFocus = self.focusedGuiObject:getValue()
 		local nextFocus = self._engineInterface.getSelection()
 
 		-- TODO: what happens if a selection change happens in response to a blur event?
@@ -171,15 +137,13 @@ function FocusNavigationService:_connectToInputEvents()
 			self._eventPropagationService:propagateEvent(previousFocus, "blur", nil, silent)
 			self._silentBlurTarget = nil
 		end
-		updateAllObservers(self._focusedGuiObjectObservers, nextFocus)
+		self._fireFocusedGuiObjectSignal(nextFocus)
 		self:_updateActiveEventMap()
 		if nextFocus then
 			local silent = nextFocus == self._silentFocusTarget
 			self._eventPropagationService:propagateEvent(nextFocus, "focus", nil, silent)
 			self._silentFocusTarget = nil
 		end
-
-		self._lastFocused = nextFocus
 	end
 	table.insert(self._engineEventConnections, self._engineInterface.SelectionChanged:Connect(onFocusChanged))
 end
@@ -207,10 +171,10 @@ function FocusNavigationService:_updateActiveEventMap()
 		activeEventMap = {}
 	end
 
-	if not shallowEqual(self._lastEventMap, activeEventMap) then
-		updateAllObservers(self._activeEventMapObservers, activeEventMap)
+	local lastEventMap = self.activeEventMap:getValue()
+	if not shallowEqual(lastEventMap, activeEventMap) then
+		self._fireActiveEventMapSignal(activeEventMap)
 	end
-	self._lastEventMap = activeEventMap
 end
 
 function FocusNavigationService:registerEventMap(guiObject: GuiObject, eventMap: EventMap)
@@ -287,8 +251,6 @@ function FocusNavigationService:teardown()
 	for _, connection in self._engineEventConnections do
 		connection:Disconnect()
 	end
-	completeAllObservers(self._activeEventMapObservers)
-	completeAllObservers(self._focusedGuiObjectObservers)
 end
 
 return FocusNavigationService

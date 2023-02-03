@@ -1,0 +1,9 @@
+[package]
+name = "Utils"
+authors = ["Roblox"]
+version = "0.1.0"
+content_root = "src"
+files = ["*", "!**/__tests__"]
+
+[dev_dependencies]
+JestGlobals = { workspace = true }

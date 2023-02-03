@@ -7,7 +7,7 @@ files = ["*", "!**/__tests__"]
 
 [dependencies]
 EventPropagation = { path = "../event-propagation" }
-ZenObservable = "github.com/roblox/zen-observable-lua@0.8.16-roblox.0"
+Utils = { path = "../utils" }
 
 [dev_dependencies]
 Collections = { workspace = true }

@@ -71,7 +71,7 @@ it("should register an event map when its ref is populated", function()
 	focusNavigationService:focusGuiObject(instance, false)
 
 	expect(activeEventMapSpy).toHaveBeenCalledTimes(1)
-	expect(activeEventMapSpy).toHaveBeenCalledWith(expect.anything(), { [Enum.KeyCode.ButtonX] = "showMore" })
+	expect(activeEventMapSpy).toHaveBeenCalledWith({ [Enum.KeyCode.ButtonX] = "showMore" })
 end)
 
 it("should deregister an event map when it cleans up", function()
@@ -90,7 +90,7 @@ it("should deregister an event map when it cleans up", function()
 
 	result.unmount()
 	expect(activeEventMapSpy).toHaveBeenCalledTimes(2)
-	expect(activeEventMapSpy).toHaveBeenCalledWith(expect.anything(), {})
+	expect(activeEventMapSpy).toHaveBeenCalledWith({})
 end)
 
 it("should update the event map if the value changes after it updates", function()
@@ -114,8 +114,8 @@ it("should update the event map if the value changes after it updates", function
 
 	-- unbinds, then binds
 	expect(activeEventMapSpy).toHaveBeenCalledTimes(3)
-	expect(activeEventMapSpy).toHaveBeenNthCalledWith(2, expect.anything(), {})
-	expect(activeEventMapSpy).toHaveBeenNthCalledWith(3, expect.anything(), { [Enum.KeyCode.ButtonY] = "showMore" })
+	expect(activeEventMapSpy).toHaveBeenNthCalledWith(2, {})
+	expect(activeEventMapSpy).toHaveBeenNthCalledWith(3, { [Enum.KeyCode.ButtonY] = "showMore" })
 end)
 
 it("should not re-register an existing map if the inputs haven't changed", function()
@@ -132,7 +132,7 @@ it("should not re-register an existing map if the inputs haven't changed", funct
 	focusNavigationService:focusGuiObject(instance, false)
 
 	expect(activeEventMapSpy).toHaveBeenCalledTimes(1)
-	expect(activeEventMapSpy).toHaveBeenCalledWith(expect.anything(), { [Enum.KeyCode.ButtonX] = "showMore" })
+	expect(activeEventMapSpy).toHaveBeenCalledWith({ [Enum.KeyCode.ButtonX] = "showMore" })
 
 	result.rerender(React.createElement(SimpleButton, {
 		eventMap = eventMap,

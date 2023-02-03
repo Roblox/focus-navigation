@@ -557,87 +557,90 @@ describe("observable properties", function()
 		tree.root:Destroy()
 	end)
 
-	it("should expose an observable for currently-focused GuiObject", function()
+	it("should expose a signal for currently-focused GuiObject", function()
 		focusNavigationService:focusGuiObject(tree.leftButton, false)
 
-		local observer = {
-			next = jest.fn(),
-		}
-		local subscription = focusNavigationService.focusedGuiObject:subscribe(observer)
+		local onChange, onChangeFn = jest.fn()
+		local subscription = focusNavigationService.focusedGuiObject:subscribe(onChangeFn)
 
-		expect(observer.next).toHaveBeenCalledTimes(0)
+		expect(onChange).toHaveBeenCalledTimes(0)
 
 		focusNavigationService:focusGuiObject(tree.rightButton, false)
 
-		expect(observer.next).toHaveBeenCalledTimes(1)
-		expect(observer.next).toHaveBeenLastCalledWith(expect.anything(), tree.rightButton)
+		expect(onChange).toHaveBeenCalledTimes(1)
+		expect(onChange).toHaveBeenLastCalledWith(tree.rightButton)
 
 		focusNavigationService:focusGuiObject(tree.leftButton, false)
-		expect(observer.next).toHaveBeenCalledTimes(2)
-		expect(observer.next).toHaveBeenLastCalledWith(expect.anything(), tree.leftButton)
+		expect(onChange).toHaveBeenCalledTimes(2)
+		expect(onChange).toHaveBeenLastCalledWith(tree.leftButton)
 
 		subscription:unsubscribe()
 		focusNavigationService:focusGuiObject(tree.rightButton, false)
-		expect(observer.next).toHaveBeenCalledTimes(2)
+		expect(onChange).toHaveBeenCalledTimes(2)
 	end)
 
 	it("should allow multiple subscribers to currently-focused object", function()
 		focusNavigationService:focusGuiObject(tree.leftButton, false)
 
-		local observer = {
-			next = jest.fn(),
-		}
-		local subscription1 = focusNavigationService.focusedGuiObject:subscribe(observer)
-		local subscription2 = focusNavigationService.focusedGuiObject:subscribe(observer)
+		local onChange1, onChange1Fn = jest.fn()
+		local onChange2, onChange2Fn = jest.fn()
+		local subscription1 = focusNavigationService.focusedGuiObject:subscribe(onChange1Fn)
+		local subscription2 = focusNavigationService.focusedGuiObject:subscribe(onChange2Fn)
 
-		expect(observer.next).toHaveBeenCalledTimes(0)
+		expect(onChange1).toHaveBeenCalledTimes(0)
+		expect(onChange2).toHaveBeenCalledTimes(0)
 
 		focusNavigationService:focusGuiObject(tree.rightButton, false)
 
-		expect(observer.next).toHaveBeenCalledTimes(2)
+		expect(onChange1).toHaveBeenCalledTimes(1)
+		expect(onChange2).toHaveBeenCalledTimes(1)
 
 		subscription1:unsubscribe()
 		focusNavigationService:focusGuiObject(tree.leftButton, false)
-		expect(observer.next).toHaveBeenCalledTimes(3)
+		expect(onChange1).toHaveBeenCalledTimes(1)
+		expect(onChange2).toHaveBeenCalledTimes(2)
 
-		local subscription3 = focusNavigationService.focusedGuiObject:subscribe(observer)
+		local onChange3, onChange3Fn = jest.fn()
+		local subscription3 = focusNavigationService.focusedGuiObject:subscribe(onChange3Fn)
 
 		focusNavigationService:focusGuiObject(tree.rightButton, false)
-		expect(observer.next).toHaveBeenCalledTimes(5)
+		expect(onChange1).toHaveBeenCalledTimes(1)
+		expect(onChange2).toHaveBeenCalledTimes(3)
+		expect(onChange3).toHaveBeenCalledTimes(1)
 
 		subscription2:unsubscribe()
 		subscription3:unsubscribe()
 
 		focusNavigationService:focusGuiObject(tree.leftButton, false)
-		expect(observer.next).toHaveBeenCalledTimes(5)
+		expect(onChange1).toHaveBeenCalledTimes(1)
+		expect(onChange2).toHaveBeenCalledTimes(3)
+		expect(onChange3).toHaveBeenCalledTimes(1)
 	end)
 
 	it("should expose an observable for currently-active event map", function()
-		local observer = {
-			next = jest.fn(),
-		}
-		local subscription = focusNavigationService.activeEventMap:subscribe(observer)
+		local onChange, onChangeFn = jest.fn()
+		local subscription = focusNavigationService.activeEventMap:subscribe(onChangeFn)
 
-		expect(observer.next).toHaveBeenCalledTimes(0)
+		expect(onChange).toHaveBeenCalledTimes(0)
 		focusNavigationService:registerEventMap(tree.leftButton, {
 			[Enum.KeyCode.ButtonX] = "foo",
 			[Enum.KeyCode.ButtonY] = "bar",
 		})
 
 		focusNavigationService:focusGuiObject(tree.leftButton, false)
-		expect(observer.next).toHaveBeenCalledTimes(1)
-		expect(observer.next).toHaveBeenLastCalledWith(expect.anything(), {
+		expect(onChange).toHaveBeenCalledTimes(1)
+		expect(onChange).toHaveBeenLastCalledWith({
 			[Enum.KeyCode.ButtonX] = "foo",
 			[Enum.KeyCode.ButtonY] = "bar",
 		})
 
 		focusNavigationService:focusGuiObject(tree.rightButton, false)
-		expect(observer.next).toHaveBeenCalledTimes(2)
-		expect(observer.next).toHaveBeenLastCalledWith(expect.anything(), {})
+		expect(onChange).toHaveBeenCalledTimes(2)
+		expect(onChange).toHaveBeenLastCalledWith({})
 
 		subscription:unsubscribe()
 		focusNavigationService:focusGuiObject(tree.leftButton, false)
-		expect(observer.next).toHaveBeenCalledTimes(2)
+		expect(onChange).toHaveBeenCalledTimes(2)
 	end)
 
 	it("should overlay event maps down the tree", function()
@@ -652,28 +655,26 @@ describe("observable properties", function()
 			[Enum.KeyCode.ButtonX] = "overrideRootAndContainerEvent",
 			[Enum.KeyCode.ButtonB] = "button",
 		})
-		local observer = {
-			next = jest.fn(),
-		}
-		local subscription = focusNavigationService.activeEventMap:subscribe(observer)
-		expect(observer.next).toHaveBeenCalledTimes(0)
+		local onChange, onChangeFn = jest.fn()
+		local subscription = focusNavigationService.activeEventMap:subscribe(onChangeFn)
+		expect(onChange).toHaveBeenCalledTimes(0)
 
 		focusNavigationService:focusGuiObject(tree.leftButton, false)
-		expect(observer.next).toHaveBeenCalledTimes(1)
-		expect(observer.next).toHaveBeenLastCalledWith(expect.anything(), {
+		expect(onChange).toHaveBeenCalledTimes(1)
+		expect(onChange).toHaveBeenLastCalledWith({
 			[Enum.KeyCode.ButtonX] = "rootEvent",
 		})
 
 		focusNavigationService:focusGuiObject(tree.rightContainer, false)
-		expect(observer.next).toHaveBeenCalledTimes(2)
-		expect(observer.next).toHaveBeenLastCalledWith(expect.anything(), {
+		expect(onChange).toHaveBeenCalledTimes(2)
+		expect(onChange).toHaveBeenLastCalledWith({
 			[Enum.KeyCode.ButtonX] = "overrideRootEvent",
 			[Enum.KeyCode.ButtonY] = "containerEvent",
 		})
 
 		focusNavigationService:focusGuiObject(tree.rightButton, false)
-		expect(observer.next).toHaveBeenCalledTimes(3)
-		expect(observer.next).toHaveBeenLastCalledWith(expect.anything(), {
+		expect(onChange).toHaveBeenCalledTimes(3)
+		expect(onChange).toHaveBeenLastCalledWith({
 			[Enum.KeyCode.ButtonX] = "overrideRootAndContainerEvent",
 			[Enum.KeyCode.ButtonY] = "containerEvent",
 			[Enum.KeyCode.ButtonB] = "button",
@@ -681,23 +682,21 @@ describe("observable properties", function()
 
 		subscription:unsubscribe()
 		focusNavigationService:focusGuiObject(tree.leftButton, false)
-		expect(observer.next).toHaveBeenCalledTimes(3)
+		expect(onChange).toHaveBeenCalledTimes(3)
 	end)
 
 	it("should update active event map on registering/deregistering", function()
-		local observer = {
-			next = jest.fn(),
-		}
-		local subscription = focusNavigationService.activeEventMap:subscribe(observer)
+		local onChange, onChangeFn = jest.fn()
+		local subscription = focusNavigationService.activeEventMap:subscribe(onChangeFn)
 
-		expect(observer.next).toHaveBeenCalledTimes(0)
+		expect(onChange).toHaveBeenCalledTimes(0)
 		focusNavigationService:registerEventMap(tree.leftButton, {
 			[Enum.KeyCode.ButtonX] = "foo",
 		})
 
 		focusNavigationService:focusGuiObject(tree.leftButton, false)
-		expect(observer.next).toHaveBeenCalledTimes(1)
-		expect(observer.next).toHaveBeenLastCalledWith(expect.anything(), {
+		expect(onChange).toHaveBeenCalledTimes(1)
+		expect(onChange).toHaveBeenLastCalledWith({
 			[Enum.KeyCode.ButtonX] = "foo",
 		})
 
@@ -705,8 +704,8 @@ describe("observable properties", function()
 			[Enum.KeyCode.ButtonX] = "foo",
 			[Enum.KeyCode.ButtonY] = "bar",
 		})
-		expect(observer.next).toHaveBeenCalledTimes(2)
-		expect(observer.next).toHaveBeenLastCalledWith(expect.anything(), {
+		expect(onChange).toHaveBeenCalledTimes(2)
+		expect(onChange).toHaveBeenLastCalledWith({
 			[Enum.KeyCode.ButtonX] = "foo",
 			[Enum.KeyCode.ButtonY] = "bar",
 		})
@@ -714,8 +713,8 @@ describe("observable properties", function()
 		focusNavigationService:registerEventMap(tree.leftContainer, {
 			[Enum.KeyCode.ButtonB] = "baz",
 		})
-		expect(observer.next).toHaveBeenCalledTimes(3)
-		expect(observer.next).toHaveBeenLastCalledWith(expect.anything(), {
+		expect(onChange).toHaveBeenCalledTimes(3)
+		expect(onChange).toHaveBeenLastCalledWith({
 			[Enum.KeyCode.ButtonX] = "foo",
 			[Enum.KeyCode.ButtonY] = "bar",
 			[Enum.KeyCode.ButtonB] = "baz",
@@ -724,8 +723,8 @@ describe("observable properties", function()
 		focusNavigationService:deregisterEventMap(tree.leftButton, {
 			[Enum.KeyCode.ButtonY] = "bar",
 		})
-		expect(observer.next).toHaveBeenCalledTimes(4)
-		expect(observer.next).toHaveBeenLastCalledWith(expect.anything(), {
+		expect(onChange).toHaveBeenCalledTimes(4)
+		expect(onChange).toHaveBeenLastCalledWith({
 			[Enum.KeyCode.ButtonX] = "foo",
 			[Enum.KeyCode.ButtonB] = "baz",
 		})
@@ -734,28 +733,26 @@ describe("observable properties", function()
 		focusNavigationService:deregisterEventMap(tree.leftButton, {
 			[Enum.KeyCode.ButtonX] = "foo",
 		})
-		expect(observer.next).toHaveBeenCalledTimes(4)
+		expect(onChange).toHaveBeenCalledTimes(4)
 	end)
 
 	it("should update activeEventMap when switching back to empty after a subscription was added", function()
-		local observer = {
-			next = jest.fn(),
-		}
+		local onChange, onChangeFn = jest.fn()
 
 		local eventMap = { [Enum.KeyCode.ButtonX] = "foo" }
 		focusNavigationService:registerEventMap(tree.leftButton, eventMap)
 		focusNavigationService:focusGuiObject(tree.leftButton, false)
 		-- not subscribed yet
-		expect(observer.next).toHaveBeenCalledTimes(0)
+		expect(onChange).toHaveBeenCalledTimes(0)
 
-		local subscription = focusNavigationService.activeEventMap:subscribe(observer)
+		local subscription = focusNavigationService.activeEventMap:subscribe(onChangeFn)
 		focusNavigationService:deregisterEventMap(tree.leftButton, eventMap)
 
-		expect(observer.next).toHaveBeenCalledTimes(1)
-		expect(observer.next).toHaveBeenCalledWith(expect.anything(), {})
+		expect(onChange).toHaveBeenCalledTimes(1)
+		expect(onChange).toHaveBeenCalledWith({})
 
 		subscription:unsubscribe()
 		focusNavigationService:registerEventMap(tree.leftButton, eventMap)
-		expect(observer.next).toHaveBeenCalledTimes(1)
+		expect(onChange).toHaveBeenCalledTimes(1)
 	end)
 end)
