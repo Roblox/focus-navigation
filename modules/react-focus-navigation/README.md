@@ -1,6 +1,7 @@
 # ReactFocusNavigation
 
 ## Hooks
+<!-- TODO: The details on many of these are the same, maybe we want to reorganize this section -->
 
 ### useEventMap
 ```lua
@@ -26,7 +27,22 @@ Allows a React component to register an EventHandlerMap on the FocusNavigationSe
 
 The `useEventHandlerMap` hook can optionally handle an inner ref, to which it will forward all updates. If you need to do something else with your ref in addition to assigning an event map, provide an inner ref.
 
-When unmounting, changing the event map, or when the ref's value changes, the hook automatically handles de-registration and re-registration of the EventHandlerMap.
+When unmounting, changing the event handler map, or when the ref's value changes, the hook automatically handles de-registration and re-registration of the EventHandlerMap.
+
+### useEventHandler
+```lua
+type useEventHandler = (
+  eventName: string,
+  eventHandler: FocusNavigation.EventHandler,
+  phase: FocusNavigation.EventPhase?,
+  innerRef: React.Ref<GuiObject>?
+) -> React.Ref<GuiObject>
+```
+Allows a React component to register an EventHandler on the FocusNavigationService. Returns a ref that must be assigned to the host component that will be associated with the event map.
+
+The `useEventHandler` hook can optionally handle an inner ref, to which it will forward all updates. If you need to do something else with your ref in addition to assigning an event map, provide an inner ref.
+
+When unmounting, changing the provided event handler data, or when the ref's value changes, the hook automatically handles de-registration and re-registration of the EventHandlerMap.
 
 ### useActiveEventMap
 ```lua

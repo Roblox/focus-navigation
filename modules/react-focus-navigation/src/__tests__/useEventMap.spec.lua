@@ -58,6 +58,22 @@ local function renderWithFocusNav(ui, options: any?)
 	return render(ui, Object.assign({ wrapper = FocusNavigationServiceWrapper }, options or {}))
 end
 
+it("should have no effect if no context is provided", function()
+	local activeEventMapSpy, activeEventMapSpyFn = jest.fn()
+	focusNavigationService.activeEventMap:subscribe(activeEventMapSpyFn)
+
+	-- Use regular testing library `render` instead of the wrapper
+	local result = render(React.createElement(SimpleButton, {
+		eventMap = { [Enum.KeyCode.ButtonX] = "showMore" },
+		text = "Show More",
+	}))
+
+	local instance = result.getByText("Show More")
+	focusNavigationService:focusGuiObject(instance, false)
+
+	expect(activeEventMapSpy).toHaveBeenCalledTimes(0)
+end)
+
 it("should register an event map when its ref is populated", function()
 	local activeEventMapSpy, activeEventMapSpyFn = jest.fn()
 	focusNavigationService.activeEventMap:subscribe(activeEventMapSpyFn)
