@@ -12,7 +12,14 @@
 </div>
 <div>&nbsp;</div>
 
-**Fill in a longer description about Focus Navigation here!**
+*🛠 - Under Construction*
+
+## Installation
+The Focus Navigation library is a work in progress. You can try it out during development with a git dependency. Add the following to the `rotriever.toml` file for your project:
+
+```toml
+ReactFocusNavigation = { git = "https://github.com/roblox/focus-navigation", rev = "main" }
+```
 
 ## Documentation
 *🛠 - Under Construction*
