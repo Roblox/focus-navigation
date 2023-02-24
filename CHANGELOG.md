@@ -1,6 +1,7 @@
 # Focus Navigation Changelog
 
 ## Unreleased Changes
+* Introduce `useCaptureFocus` ([#11](https://github.com/Roblox/focus-navigation/pull/11))
 * Introduce `useEventHandler` ([#8](https://github.com/Roblox/focus-navigation/pull/8))
 * Introduce `useActiveEventMap` ([#9](https://github.com/Roblox/focus-navigation/pull/9))
 * Introduce `useEventHandlerMap` ([#7](https://github.com/Roblox/focus-navigation/pull/7))

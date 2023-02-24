@@ -5,5 +5,5 @@ std = "roblox"
 # https://kampfkarren.github.io/selene/usage/configuration.html
 
 [rules]
-# Customize selene's lint rules:
-# https://kampfkarren.github.io/selene/lints/index.html
+# remove this once the feature request here is implemented: https://github.com/Kampfkarren/selene/issues/181
+global_usage = "allow"

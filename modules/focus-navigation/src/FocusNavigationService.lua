@@ -25,7 +25,7 @@ export type FocusNavigationService = {
 	deregisterEventHandlers: (self: FocusNavigationService, GuiObject, EventHandlerMap) -> (),
 	registerEventHandler: (self: FocusNavigationService, GuiObject, string, EventHandler, EventPhase?) -> (),
 	deregisterEventHandler: (self: FocusNavigationService, GuiObject, string, EventHandler, EventPhase?) -> (),
-	focusGuiObject: (self: FocusNavigationService, GuiObject, boolean) -> (),
+	focusGuiObject: (self: FocusNavigationService, GuiObject?, boolean) -> (),
 	teardown: (self: FocusNavigationService) -> (),
 
 	activeEventMap: Utils.Signal<EventMap>,
@@ -54,7 +54,7 @@ type FocusNavigationServicePrivate = {
 	deregisterEventHandlers: (self: FocusNavigationServicePrivate, GuiObject, EventHandlerMap) -> (),
 	registerEventHandler: (self: FocusNavigationServicePrivate, GuiObject, string, EventHandler, EventPhase?) -> (),
 	deregisterEventHandler: (self: FocusNavigationServicePrivate, GuiObject, string, EventHandler, EventPhase?) -> (),
-	focusGuiObject: (self: FocusNavigationServicePrivate, GuiObject, boolean) -> (),
+	focusGuiObject: (self: FocusNavigationServicePrivate, GuiObject?, boolean) -> (),
 	teardown: (self: FocusNavigationServicePrivate) -> (),
 
 	activeEventMap: Utils.Signal<EventMap>,
@@ -95,8 +95,8 @@ function FocusNavigationService.new(engineInterface: EngineInterface)
 end
 
 function FocusNavigationService:_fireInputEvent(focusedGuiObject: GuiObject, input: InputObject)
-	local eventsForInstance = self._eventMapByInstance[focusedGuiObject]
-	local event = if eventsForInstance and input.KeyCode then eventsForInstance[input.KeyCode] else nil
+	local event = self.activeEventMap:getValue()[input.KeyCode]
+
 	if event then
 		self._eventPropagationService:propagateEvent(focusedGuiObject, event, {
 			Delta = input.Delta,
@@ -229,7 +229,7 @@ function FocusNavigationService:deregisterEventHandlers(guiObject: GuiObject, ev
 	self._eventPropagationService:deregisterEventHandlers(guiObject, eventHandlers)
 end
 
-function FocusNavigationService:focusGuiObject(guiObject: GuiObject, silent: boolean)
+function FocusNavigationService:focusGuiObject(guiObject: GuiObject?, silent: boolean)
 	-- TODO: Should we warn if trying to focus something that's not under the
 	-- correct gui target? e.g. warn/error when trying to focus something under
 	-- PlayerGui if core ui is enabled?
@@ -237,7 +237,7 @@ function FocusNavigationService:focusGuiObject(guiObject: GuiObject, silent: boo
 		-- If we've silenced the event, we need to identify which guiObjects
 		-- we're going to and from so that we can respond accordingly
 		self._silentBlurTarget = self._engineInterface.getSelection()
-		self._silentFocusTarget = guiObject :: GuiObject?
+		self._silentFocusTarget = guiObject
 	else
 		-- Otherwise, clear the state to make sure we're somewhat resilient to
 		-- weird interaction sequences or attempts to refocus during callbacks

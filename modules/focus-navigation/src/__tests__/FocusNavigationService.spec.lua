@@ -30,14 +30,6 @@ local beginAEvent = {
 	UserInputState = Enum.UserInputState.Begin,
 }
 
-local function getMountedGui(mountTarget)
-	return createGuiObjectTree({
-		root = { "ScreenGui", mountTarget },
-		leftButton = { "ImageButton", "root", { Size = UDim2.fromScale(0.5, 0.5) } },
-		rightButton = { "ImageButton", "root", { Size = UDim2.fromScale(0.5, 0.5) } },
-	})
-end
-
 local mockEngineInterface, focusNavigationService
 beforeEach(function()
 	mockEngineInterface = MockEngineInterface.new()
@@ -75,22 +67,6 @@ describe("Basic functionality", function()
 		expect(interface.mock.InputChangedDisconnected).toHaveBeenCalledTimes(1)
 		expect(interface.mock.InputEndedDisconnected).toHaveBeenCalledTimes(1)
 		expect(interface.mock.SelectionChangedDisconnected).toHaveBeenCalledTimes(1)
-	end)
-
-	it("should be able to focus the correct input property under CoreGui", function()
-		local mountedTree = getMountedGui(CoreGui)
-		local service = FocusNavigationService.new(EngineInterface.CoreGui)
-		service:focusGuiObject(mountedTree.leftButton, false)
-		expect(GuiService.SelectedCoreObject).toEqual(mountedTree.leftButton)
-		expect(GuiService.SelectedObject).toBeNil()
-	end)
-
-	it("should be able to focus the correct input property under PlayerGui", function()
-		local mountedTree = getMountedGui(PlayerGui)
-		local service = FocusNavigationService.new(EngineInterface.PlayerGui)
-		service:focusGuiObject(mountedTree.leftButton, false)
-		expect(GuiService.SelectedObject).toEqual(mountedTree.leftButton)
-		expect(GuiService.SelectedCoreObject).toBeNil()
 	end)
 
 	it("should allow input events to be registered on instances", function()
@@ -213,9 +189,6 @@ describe("Basic functionality", function()
 
 			focusNavigationService:registerEventHandlers(tree.root, handlerMap)
 			focusNavigationService:registerEventHandlers(tree.leftButton, handlerMap)
-			focusNavigationService:registerEventMap(tree.leftButton, {
-				[Enum.KeyCode.A] = "confirm",
-			})
 			focusNavigationService:registerEventMap(tree.root, {
 				[Enum.KeyCode.A] = "confirm",
 			})
@@ -250,9 +223,6 @@ describe("Basic functionality", function()
 			end)
 			focusNavigationService:registerEventHandlers(tree.root, handlerMap)
 			focusNavigationService:registerEventHandlers(tree.leftButton, handlerMap)
-			focusNavigationService:registerEventMap(tree.leftButton, {
-				[Enum.KeyCode.A] = "confirm",
-			})
 			focusNavigationService:registerEventMap(tree.root, {
 				[Enum.KeyCode.A] = "confirm",
 			})
@@ -274,9 +244,6 @@ describe("Basic functionality", function()
 			local handlerMap = getConfirmHandlerMap("Bubble")
 			focusNavigationService:registerEventHandlers(tree.root, handlerMap)
 			focusNavigationService:registerEventHandlers(tree.leftButton, handlerMap)
-			focusNavigationService:registerEventMap(tree.leftButton, {
-				[Enum.KeyCode.A] = "confirm",
-			})
 			focusNavigationService:registerEventMap(tree.root, {
 				[Enum.KeyCode.A] = "confirm",
 			})
@@ -311,9 +278,6 @@ describe("Basic functionality", function()
 			end)
 			focusNavigationService:registerEventHandlers(tree.root, handlerMap)
 			focusNavigationService:registerEventHandlers(tree.leftButton, handlerMap)
-			focusNavigationService:registerEventMap(tree.leftButton, {
-				[Enum.KeyCode.A] = "confirm",
-			})
 			focusNavigationService:registerEventMap(tree.root, {
 				[Enum.KeyCode.A] = "confirm",
 			})
@@ -330,6 +294,8 @@ describe("Basic functionality", function()
 				eventData = beginAEvent,
 			}))
 		end)
+
+		-- it("should capture and bubble when map is defined in ancestor")
 	end)
 
 	-- TODO: What sort of warnings/failure modes should we have here?
@@ -351,6 +317,14 @@ describeEach({ { phase = "Capture" }, { phase = "Bubble" } })("focus and blur: $
 				handler = jest.fn(onFocus) :: EventHandler,
 			},
 		}
+	end
+
+	local function getGuiMountedTo(mountTarget)
+		return createGuiObjectTree({
+			root = { "ScreenGui", mountTarget },
+			leftButton = { "ImageButton", "root", { Size = UDim2.fromScale(0.5, 0.5) } },
+			rightButton = { "ImageButton", "root", { Size = UDim2.fromScale(0.5, 0.5) } },
+		})
 	end
 
 	local tree
@@ -416,7 +390,7 @@ describeEach({ { phase = "Capture" }, { phase = "Bubble" } })("focus and blur: $
 	end)
 
 	it("should only send events for the SelectedCoreObject under CoreGui", function()
-		local mountedTree = getMountedGui(CoreGui)
+		local mountedTree = getGuiMountedTo(CoreGui)
 		local service = FocusNavigationService.new(EngineInterface.CoreGui)
 		service:focusGuiObject(mountedTree.leftButton, false)
 
@@ -438,7 +412,7 @@ describeEach({ { phase = "Capture" }, { phase = "Bubble" } })("focus and blur: $
 	end)
 
 	it("should only send events for the SelectedObject under PlayerGui", function()
-		local mountedTree = getMountedGui(PlayerGui)
+		local mountedTree = getGuiMountedTo(PlayerGui)
 		local service = FocusNavigationService.new(EngineInterface.PlayerGui)
 		service:focusGuiObject(mountedTree.leftButton, false)
 

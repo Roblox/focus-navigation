@@ -49,3 +49,12 @@ When unmounting, changing the provided event handler data, or when the ref's val
 type useActiveEventMap = () -> FocusNavigation.EventMap
 ```
 Returns a `FocusNavigation.EventMap` that describes the current active EventMap. The active EventMap describes all currently-bound events based on which GUI elements are focused, and what events are registered to it and its ancestors. Events bound to the same input as an ancestor will override the ancestor's bindings to those inputs.
+
+### useCaptureFocus
+```lua
+type CaptureFocus = (React.Ref<GuiObject?> | GuiObject | nil) -> ()
+type useCaptureFocus = () -> CaptureFocus
+```
+Returns a function that can be used for imperatively capturing focus. This is useful for adapting focus management to other complexities of application UI, including animations and app navigation transitions. Call this function with a `GuiObject` or an object ref to move focus to the target or one of its `Selectable` descendants.
+
+You can also call this function with `nil` to unfocus the UI entirely. You may want to do this in response to inputs from non-gamepad peripherals.
