@@ -68,6 +68,10 @@ local function renderWithFocusNav(ui, options: any?)
 	return render(ui, Object.assign({ wrapper = FocusNavigationServiceWrapper }, options or {}))
 end
 
+local function noop(_)
+	-- used for to bind handlers so that events can be active
+end
+
 it("returns nil if there is no FocusNavigationService", function()
 	local result = render(React.createElement(ActiveEventViewer))
 
@@ -84,6 +88,7 @@ it("return the current active event map", function()
 	focusNavigationService:registerEventMap(container, {
 		[Enum.KeyCode.W] = "Jump",
 	})
+	focusNavigationService:registerEventHandler(container, "Jump", noop)
 	focusNavigationService:focusGuiObject(container, false)
 
 	local result = renderWithFocusNav(React.createElement(ActiveEventViewer, { container = container } :: any))
@@ -96,6 +101,10 @@ it("updates the active event map when it changes due to focus change", function(
 	focusNavigationService:registerEventMap(ref.current, {
 		[Enum.KeyCode.Z] = "Attack",
 		[Enum.KeyCode.X] = "Special",
+	})
+	focusNavigationService:registerEventHandlers(ref.current, {
+		Attack = { handler = noop },
+		Special = { handler = noop },
 	})
 
 	expect(result.queryByText("No Active Events")).toBeDefined()
@@ -112,7 +121,10 @@ it("updates the active event map when event maps get reassigned", function()
 	focusNavigationService:registerEventMap(ref.current, {
 		[Enum.KeyCode.Z] = "Attack",
 	})
-
+	focusNavigationService:registerEventHandlers(ref.current, {
+		Attack = { handler = noop },
+		Block = { handler = noop },
+	})
 	expect(result.queryByText("No Active Events")).toBeDefined()
 
 	focusNavigationService:focusGuiObject(ref.current, false)
@@ -139,6 +151,7 @@ it("updates the active event map when the FocusNavigationService changes", funct
 	focusNavigationService:registerEventMap(ref.current, {
 		[Enum.KeyCode.Z] = "Attack",
 	})
+	focusNavigationService:registerEventHandler(ref.current, "Attack", noop)
 
 	expect(result.queryByText("No Active Events")).toBeDefined()
 
@@ -151,6 +164,7 @@ it("updates the active event map when the FocusNavigationService changes", funct
 	focusNavigationService:registerEventMap(ref.current, {
 		[Enum.KeyCode.W] = "Jump",
 	})
+	focusNavigationService:registerEventHandler(ref.current, "Jump", noop)
 
 	-- Rerender to assign the new context value
 	result.rerender(React.createElement(ActiveEventViewer, { containerRef = ref }))

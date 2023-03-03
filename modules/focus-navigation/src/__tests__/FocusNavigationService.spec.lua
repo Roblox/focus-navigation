@@ -517,6 +517,12 @@ describeEach({ { phase = "Capture" }, { phase = "Bubble" } })("focus and blur: $
 end)
 
 describe("observable properties", function()
+	type NoopHandler = { handler: (any) -> (), phase: nil }
+
+	local function noop(_: any)
+		-- used to register handlers for active event tracking
+	end
+
 	local tree
 	beforeEach(function()
 		tree = createGuiObjectTree({
@@ -600,6 +606,10 @@ describe("observable properties", function()
 			[Enum.KeyCode.ButtonX] = "foo",
 			[Enum.KeyCode.ButtonY] = "bar",
 		})
+		focusNavigationService:registerEventHandlers(tree.leftButton, {
+			foo = { handler = noop },
+			bar = { handler = noop },
+		})
 
 		focusNavigationService:focusGuiObject(tree.leftButton, false)
 		expect(onChange).toHaveBeenCalledTimes(1)
@@ -629,6 +639,22 @@ describe("observable properties", function()
 			[Enum.KeyCode.ButtonX] = "overrideRootAndContainerEvent",
 			[Enum.KeyCode.ButtonB] = "button",
 		})
+		-- register all events on each button, so we're only dealing with the
+		-- changes in the EventMap
+		local handlers: { [string]: NoopHandler } = {
+			rootEvent = { handler = noop },
+			overrideRootEvent = { handler = noop },
+			containerEvent = { handler = noop },
+			overrideRootAndContainerEvent = { handler = noop },
+			button = { handler = noop },
+		}
+		-- register all events on all instances so that we're only dealing with
+		-- the changes in the EventMap
+		focusNavigationService:registerEventHandlers(tree.root, handlers)
+		focusNavigationService:registerEventHandlers(tree.leftContainer, handlers)
+		focusNavigationService:registerEventHandlers(tree.rightContainer, handlers)
+		focusNavigationService:registerEventHandlers(tree.leftButton, handlers)
+		focusNavigationService:registerEventHandlers(tree.rightButton, handlers)
 		local onChange, onChangeFn = jest.fn()
 		local subscription = focusNavigationService.activeEventMap:subscribe(onChangeFn)
 		expect(onChange).toHaveBeenCalledTimes(0)
@@ -666,6 +692,11 @@ describe("observable properties", function()
 		expect(onChange).toHaveBeenCalledTimes(0)
 		focusNavigationService:registerEventMap(tree.leftButton, {
 			[Enum.KeyCode.ButtonX] = "foo",
+		})
+		focusNavigationService:registerEventHandlers(tree.leftButton, {
+			foo = { handler = noop },
+			bar = { handler = noop },
+			baz = { handler = noop },
 		})
 
 		focusNavigationService:focusGuiObject(tree.leftButton, false)
@@ -715,6 +746,7 @@ describe("observable properties", function()
 
 		local eventMap = { [Enum.KeyCode.ButtonX] = "foo" }
 		focusNavigationService:registerEventMap(tree.leftButton, eventMap)
+		focusNavigationService:registerEventHandler(tree.leftButton, "foo", noop)
 		focusNavigationService:focusGuiObject(tree.leftButton, false)
 		-- not subscribed yet
 		expect(onChange).toHaveBeenCalledTimes(0)
@@ -728,5 +760,103 @@ describe("observable properties", function()
 		subscription:unsubscribe()
 		focusNavigationService:registerEventMap(tree.leftButton, eventMap)
 		expect(onChange).toHaveBeenCalledTimes(1)
+	end)
+
+	describe("active event filtering", function()
+		it("should update when handlers are registered and deregistered", function()
+			local eventMap = {
+				[Enum.KeyCode.ButtonX] = "foo",
+				[Enum.KeyCode.ButtonY] = "bar",
+			}
+			focusNavigationService:registerEventMap(tree.root, eventMap)
+			focusNavigationService:focusGuiObject(tree.leftButton, false)
+
+			local activeEventMap = focusNavigationService.activeEventMap
+			expect(activeEventMap:getValue()).toEqual({})
+
+			focusNavigationService:registerEventHandler(tree.root, "foo", noop)
+			expect(activeEventMap:getValue()).toEqual({ [Enum.KeyCode.ButtonX] = "foo" })
+			focusNavigationService:registerEventHandler(tree.leftButton, "bar", noop)
+			expect(activeEventMap:getValue()).toEqual(eventMap)
+
+			focusNavigationService:deregisterEventHandler(tree.root, "foo", noop)
+			expect(activeEventMap:getValue()).toEqual({ [Enum.KeyCode.ButtonY] = "bar" })
+			focusNavigationService:deregisterEventHandler(tree.leftButton, "bar", noop)
+			expect(activeEventMap:getValue()).toEqual({})
+		end)
+
+		it("should update when mappings are registered and deregistered", function()
+			focusNavigationService:registerEventHandlers(tree.leftButton, {
+				foo = { handler = noop },
+				bar = { handler = noop },
+			})
+			focusNavigationService:focusGuiObject(tree.leftButton, false)
+
+			local activeEventMap = focusNavigationService.activeEventMap
+			expect(activeEventMap:getValue()).toEqual({})
+
+			focusNavigationService:registerEventMap(tree.root, { [Enum.KeyCode.ButtonA] = "foo" })
+			expect(activeEventMap:getValue()).toEqual({ [Enum.KeyCode.ButtonA] = "foo" })
+			focusNavigationService:registerEventMap(tree.leftButton, { [Enum.KeyCode.ButtonB] = "bar" })
+			expect(activeEventMap:getValue()).toEqual({
+				[Enum.KeyCode.ButtonA] = "foo",
+				[Enum.KeyCode.ButtonB] = "bar",
+			})
+
+			focusNavigationService:deregisterEventMap(tree.root, { [Enum.KeyCode.ButtonA] = "foo" })
+			expect(activeEventMap:getValue()).toEqual({ [Enum.KeyCode.ButtonB] = "bar" })
+			focusNavigationService:deregisterEventMap(tree.leftButton, { [Enum.KeyCode.ButtonB] = "bar" })
+			expect(activeEventMap:getValue()).toEqual({})
+		end)
+
+		it("should update when moving focus", function()
+			focusNavigationService:registerEventMap(tree.leftContainer, { [Enum.KeyCode.ButtonX] = "foo" })
+			focusNavigationService:registerEventHandler(tree.leftButton, "bar", noop)
+			focusNavigationService:registerEventMap(tree.rightContainer, { [Enum.KeyCode.ButtonY] = "baz" })
+			focusNavigationService:registerEventHandler(tree.rightButton, "baz", noop)
+
+			focusNavigationService:focusGuiObject(tree.root, false)
+
+			local activeEventMap = focusNavigationService.activeEventMap
+			expect(activeEventMap:getValue()).toEqual({})
+
+			-- no events mapped or registered on root
+			focusNavigationService:focusGuiObject(tree.root, false)
+			expect(activeEventMap:getValue()).toEqual({})
+
+			-- "foo" is mapped but not registered
+			focusNavigationService:focusGuiObject(tree.leftContainer, false)
+			expect(activeEventMap:getValue()).toEqual({})
+
+			-- "bar" is registered but not mapped
+			focusNavigationService:focusGuiObject(tree.leftButton, false)
+			expect(activeEventMap:getValue()).toEqual({})
+
+			-- "baz" is both mapped and registered
+			focusNavigationService:focusGuiObject(tree.rightButton, false)
+			expect(activeEventMap:getValue()).toEqual({ [Enum.KeyCode.ButtonY] = "baz" })
+		end)
+
+		it("should reflect events that have been overridden", function()
+			focusNavigationService:registerEventMap(tree.root, { [Enum.KeyCode.ButtonX] = "foo" })
+			focusNavigationService:registerEventHandler(tree.leftContainer, "foo", noop)
+			focusNavigationService:registerEventMap(tree.leftButton, { [Enum.KeyCode.ButtonX] = "fooOverride" })
+
+			focusNavigationService:focusGuiObject(tree.root, false)
+
+			local activeEventMap = focusNavigationService.activeEventMap
+			expect(activeEventMap:getValue()).toEqual({})
+
+			focusNavigationService:focusGuiObject(tree.leftContainer, false)
+			expect(activeEventMap:getValue()).toEqual({ [Enum.KeyCode.ButtonX] = "foo" })
+
+			-- map overrides bound event to unbound event
+			focusNavigationService:focusGuiObject(tree.leftButton, false)
+			expect(activeEventMap:getValue()).toEqual({})
+
+			-- register a handler for the overridden event and it becomes active
+			focusNavigationService:registerEventHandler(tree.leftButton, "fooOverride", noop)
+			expect(activeEventMap:getValue()).toEqual({ [Enum.KeyCode.ButtonX] = "fooOverride" })
+		end)
 	end)
 end)

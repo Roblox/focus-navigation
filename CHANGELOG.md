@@ -1,6 +1,7 @@
 # Focus Navigation Changelog
 
 ## Unreleased Changes
+* Fix an issue with active event map not filtering based on which events have registered handlers ([#12](https://github.com/Roblox/focus-navigation/pull/12))
 * Introduce `useCaptureFocus` ([#11](https://github.com/Roblox/focus-navigation/pull/11))
 * Introduce `useEventHandler` ([#8](https://github.com/Roblox/focus-navigation/pull/8))
 * Introduce `useActiveEventMap` ([#9](https://github.com/Roblox/focus-navigation/pull/9))

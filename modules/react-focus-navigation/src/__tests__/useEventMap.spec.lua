@@ -20,6 +20,7 @@ local Object = Collections.Object
 
 local FocusNavigationContext = require(script.Parent.Parent.FocusNavigationContext)
 local useEventMap = require(script.Parent.Parent.useEventMap)
+local useEventHandlerMap = require(script.Parent.Parent.useEventHandlerMap)
 
 local focusNavigationService
 beforeEach(function()
@@ -32,8 +33,24 @@ afterEach(function()
 	cleanup()
 end)
 
+local function noop(_: any)
+	-- empty event handler so that mapped events count as "active"
+end
+
+local function useHandlersFromMap(eventMap, ref)
+	local handlers = React.useMemo(function(): FocusNavigation.EventHandlerMap
+		local result = {}
+		for _, name in eventMap do
+			result[name] = { handler = noop }
+		end
+		return result
+	end, { eventMap })
+	return useEventHandlerMap(handlers, ref)
+end
+
 local function SimpleButton(props)
 	local ref = useEventMap(props.eventMap, props.innerRef)
+	ref = useHandlersFromMap(props.eventMap, ref)
 	return React.createElement("TextButton", {
 		Text = props.text,
 		ref = ref,
@@ -42,6 +59,7 @@ end
 
 local function SimpleLabel(props)
 	local ref = useEventMap(props.eventMap, props.innerRef)
+	ref = useHandlersFromMap(props.eventMap, ref)
 	return React.createElement("TextLabel", {
 		Text = props.text,
 		ref = ref,

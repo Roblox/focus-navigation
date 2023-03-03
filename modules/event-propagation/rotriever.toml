@@ -6,8 +6,7 @@ content_root = "src"
 files = ["*", "!**/__tests__"]
 
 [dependencies]
-# Add dependencies here. Dependencies might look like:
-# React = "github.com/roblox/roact-alignment@17.0.1-rc.16"
+Utils = { path = "../utils" }
 
 [dev_dependencies]
 JestGlobals = { workspace = true }

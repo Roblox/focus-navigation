@@ -5,6 +5,7 @@ local Utils = require(Packages.Utils)
 
 local createSignal = Utils.createSignal
 local shallowEqual = Utils.shallowEqual
+local getAncestors = Utils.getAncestors
 
 local types = require(script.Parent.types)
 type EventMap = types.EventMap
@@ -17,6 +18,7 @@ type EventPropagationService<T> = EventPropagationService.EventPropagationServic
 type EventHandlerMap = EventPropagationService.EventHandlerMap<EventData>
 
 export type EventHandler = (Event<EventData>) -> ()
+type RegisteredEvents = { [string]: boolean }
 
 export type FocusNavigationService = {
 	registerEventMap: (self: FocusNavigationService, GuiObject, EventMap) -> (),
@@ -149,26 +151,32 @@ function FocusNavigationService:_connectToInputEvents()
 end
 
 function FocusNavigationService:_updateActiveEventMap()
-	local activeEventMap
+	local activeEventMap = {}
 	local focused = self._engineInterface.getSelection()
 	if focused then
-		local currentMap = self._eventMapByInstance[focused :: GuiObject]
-		activeEventMap = if currentMap then table.clone(currentMap) else {} :: EventMap
-		local ancestor = (focused :: GuiObject).Parent
-		while ancestor do
+		local ancestorList = getAncestors(focused)
+
+		local mappedEvents = {}
+		for i = #ancestorList, 1, -1 do
+			local ancestor = ancestorList[i]
 			local ancestorEventMap = self._eventMapByInstance[ancestor] :: EventMap?
 			if ancestorEventMap then
 				for keyCode, eventName in ancestorEventMap do
-					-- Since we're going up the tree, only include non-overridden
-					if not activeEventMap[keyCode] then
+					mappedEvents[keyCode] = eventName
+					-- invalidate any already-mapped event handlers when we bind
+					-- over them
+					activeEventMap[keyCode] = nil
+				end
+			end
+			local handlers = self._eventPropagationService:getRegisteredEventHandlers(ancestor)
+			if handlers then
+				for keyCode, eventName in mappedEvents do
+					if handlers[eventName] then
 						activeEventMap[keyCode] = eventName
 					end
 				end
 			end
-			ancestor = ancestor.Parent
 		end
-	else
-		activeEventMap = {}
 	end
 
 	local lastEventMap = self.activeEventMap:getValue()
@@ -210,6 +218,7 @@ function FocusNavigationService:registerEventHandler(
 	phase: EventPhase?
 )
 	self._eventPropagationService:registerEventHandler(guiObject, eventName, eventHandler, phase)
+	self:_updateActiveEventMap()
 end
 
 function FocusNavigationService:deregisterEventHandler(
@@ -219,14 +228,17 @@ function FocusNavigationService:deregisterEventHandler(
 	phase: EventPhase?
 )
 	self._eventPropagationService:deregisterEventHandler(guiObject, eventName, eventHandler, phase)
+	self:_updateActiveEventMap()
 end
 
 function FocusNavigationService:registerEventHandlers(guiObject: GuiObject, eventHandlers: EventHandlerMap)
 	self._eventPropagationService:registerEventHandlers(guiObject, eventHandlers)
+	self:_updateActiveEventMap()
 end
 
 function FocusNavigationService:deregisterEventHandlers(guiObject: GuiObject, eventHandlers: EventHandlerMap)
 	self._eventPropagationService:deregisterEventHandlers(guiObject, eventHandlers)
+	self:_updateActiveEventMap()
 end
 
 function FocusNavigationService:focusGuiObject(guiObject: GuiObject?, silent: boolean)

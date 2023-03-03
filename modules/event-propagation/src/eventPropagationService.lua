@@ -1,4 +1,7 @@
 --!strict
+local Packages = script.Parent.Parent
+local getAncestors = require(Packages.Utils).getAncestors
+
 local eventPropagationEvent = require(script.Parent.eventPropagationEvent)
 local Event = eventPropagationEvent
 type EventPhase = eventPropagationEvent.EventPhase
@@ -11,6 +14,10 @@ export type EventHandlerMap<T> = {
 		handler: EventHandler<T>,
 		phase: EventPhase?,
 	},
+}
+
+export type BoundEventHandlers = {
+	[string]: boolean,
 }
 
 type EventHandlers<T> = {
@@ -42,6 +49,7 @@ export type EventPropagationService<T> = {
 		handler: EventHandler<T>,
 		phase: EventPhase?
 	) -> (),
+	getRegisteredEventHandlers: (self: EventPropagationService<T>, instance: Instance) -> BoundEventHandlers?,
 	propagateEvent: (
 		self: EventPropagationService<T>,
 		instance: Instance,
@@ -77,6 +85,7 @@ type EventPropagationServicePrivate = {
 		handler: EventHandler<any>,
 		phase: EventPhase?
 	) -> (),
+	getRegisteredEventHandlers: (self: EventPropagationServicePrivate, instance: Instance) -> BoundEventHandlers?,
 	propagateEvent: (
 		self: EventPropagationServicePrivate,
 		instance: Instance,
@@ -92,15 +101,7 @@ type EventPropagationServiceStatics = {
 
 local DEFAULT_PHASE: EventPhase = "Bubble"
 
-local function getAncestors(instance: Instance)
-	local ancestors = { instance }
-	while ancestors[#ancestors].Parent do
-		table.insert(ancestors, ancestors[#ancestors].Parent :: Instance)
-	end
-	return ancestors
-end
-
-local function getEventsFromRegistry<T>(registry: EventHandlerRegistry<T>, instance: Instance): EventHandlersByName<T>
+local function getEventsFromRegistry<T>(registry: EventHandlerRegistry<T>, instance: Instance): EventHandlersByName<T>?
 	return registry[instance]
 end
 
@@ -167,6 +168,20 @@ function EventPropagationService:deregisterEventHandler(
 	if eventPhases and eventPhases[resolvedPhase] == handler then
 		eventPhases[resolvedPhase] = nil
 	end
+end
+
+function EventPropagationService:getRegisteredEventHandlers(instance: Instance): BoundEventHandlers?
+	local bound = getEventsFromRegistry(self.eventHandlerRegistry, instance)
+	if bound then
+		local registeredHandlers = {}
+		for name, events in bound do
+			-- Only include members with any mapped values
+			registeredHandlers[name] = next(events) ~= nil
+		end
+
+		return registeredHandlers
+	end
+	return nil
 end
 
 function EventPropagationService:propagateEvent(instance: Instance, eventName: string, eventData: any, silent: boolean)
