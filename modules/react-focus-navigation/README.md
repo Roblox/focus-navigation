@@ -1,7 +1,6 @@
 # ReactFocusNavigation
 
 ## Hooks
-<!-- TODO: The details on many of these are the same, maybe we want to reorganize this section -->
 
 ### useEventMap
 ```lua
@@ -49,6 +48,12 @@ When unmounting, changing the provided event handler data, or when the ref's val
 type useActiveEventMap = () -> FocusNavigation.EventMap
 ```
 Returns a `FocusNavigation.EventMap` that describes the current active EventMap. The active EventMap describes all currently-bound events based on which GUI elements are focused, and what events are registered to it and its ancestors. Events bound to the same input as an ancestor will override the ancestor's bindings to those inputs.
+
+### useFocusedGuiObject
+```lua
+type useFocusedGuiObject = () -> GuiObject?
+```
+Returns the currently-focused `GuiObject` via the `FocusNavigationService.focusedGuiObject` observable property. This hook triggers an update each time the focus changes.
 
 ### useCaptureFocus
 ```lua
