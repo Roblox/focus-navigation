@@ -1,9 +1,10 @@
 # Focus Navigation Changelog
 
 ## Unreleased Changes
+* Add demo app ([#10](https://github.com/Roblox/focus-navigation/pull/10))
 * Add `useFocusedGuiObject` hook ([#13](https://github.com/Roblox/focus-navigation/pull/13))
 * Fix an issue with active event map not filtering based on which events have registered handlers ([#12](https://github.com/Roblox/focus-navigation/pull/12))
-* Introduce `useCaptureFocus` ([#11](https://github.com/Roblox/focus-navigation/pull/11))
+* Introduce `useFocusGuiObject` ([#11](https://github.com/Roblox/focus-navigation/pull/11))
 * Introduce `useEventHandler` ([#8](https://github.com/Roblox/focus-navigation/pull/8))
 * Introduce `useActiveEventMap` ([#9](https://github.com/Roblox/focus-navigation/pull/9))
 * Introduce `useEventHandlerMap` ([#7](https://github.com/Roblox/focus-navigation/pull/7))

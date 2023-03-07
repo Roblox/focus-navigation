@@ -7,6 +7,8 @@ local Event = eventPropagationEvent
 type EventPhase = eventPropagationEvent.EventPhase
 type Event<T> = eventPropagationEvent.Event<T>
 
+local DEBUG = _G.__DEBUG_EVENT_PROPAGATION__
+
 export type EventHandler<T> = (e: Event<T>) -> ()
 
 export type EventHandlerMap<T> = {
@@ -133,6 +135,10 @@ function EventPropagationService:registerEventHandler(
 	eventHandler: EventHandler<any>,
 	phase: EventPhase?
 )
+	if DEBUG then
+		print("+++ register handler", eventName, tostring(instance), phase or DEFAULT_PHASE)
+	end
+
 	local resolvedPhase: EventPhase = phase or DEFAULT_PHASE
 	self.eventHandlerRegistry[instance] = self.eventHandlerRegistry[instance] or {}
 	self.eventHandlerRegistry[instance][eventName] = self.eventHandlerRegistry[instance][eventName] or {}
@@ -163,6 +169,9 @@ function EventPropagationService:deregisterEventHandler(
 	handler: EventHandler<any>,
 	phase: EventPhase?
 )
+	if DEBUG then
+		print("--- deregister handler", eventName, tostring(instance), phase or DEFAULT_PHASE)
+	end
 	local resolvedPhase: EventPhase = phase or DEFAULT_PHASE
 	local eventPhases = getEventPhasesFromRegistry(self.eventHandlerRegistry, instance, eventName)
 	if eventPhases and eventPhases[resolvedPhase] == handler then
@@ -196,6 +205,9 @@ function EventPropagationService:propagateEvent(instance: Instance, eventName: s
 	end
 	local cancelled = false
 	local ancestors: { Instance } = if silent then { instance } else getAncestors(instance)
+	if DEBUG then
+		print(">>> capture event", eventName, "for", tostring(instance))
+	end
 	for i = #ancestors, 1, -1 do
 		local ancestor = ancestors[i]
 		cancelled = runEventHandler(ancestor, "Capture")
@@ -206,6 +218,9 @@ function EventPropagationService:propagateEvent(instance: Instance, eventName: s
 	cancelled = runEventHandler(instance, "Target")
 	if cancelled then
 		return
+	end
+	if DEBUG then
+		print("<<< bubble event", eventName, "from", tostring(instance))
 	end
 	for i = 1, #ancestors do
 		local ancestor = ancestors[i]

@@ -10,7 +10,7 @@ type Ref = React.Ref<Instance>
 -- type for our effect or else it assumes it'll be non-nil
 type EffectReturn = nil | () -> ()
 
-local function useEventMap(): FocusNavigation.EventMap
+local function useActiveEventMap(): FocusNavigation.EventMap
 	local focusNavigationService = React.useContext(FocusNavigationContext)
 
 	local initialValue = if focusNavigationService then focusNavigationService.activeEventMap:getValue() else {}
@@ -35,4 +35,4 @@ local function useEventMap(): FocusNavigation.EventMap
 	return activeEventMap
 end
 
-return useEventMap
+return useActiveEventMap

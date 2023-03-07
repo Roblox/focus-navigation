@@ -1,0 +1,30 @@
+{
+  "fileVersion": 1,
+  "fastFlags": {
+    "overrides": {
+      "FFlagEnableLoadModule": "true"
+    }
+  },
+  "instanceHierarchy": {
+    "name": "ReactFocusNavigation Demo",
+    "tree": {
+      "$className": "DataModel",
+      "ReplicatedStorage": {
+        "$className": "ReplicatedStorage",
+        "Packages": {
+          "$className": "Folder",
+          "$path": "../../Packages"
+        }
+      },
+      "StarterPlayer": {
+        "$className": "StarterPlayer",
+        "StarterPlayerScripts": {
+          "$className": "StarterPlayerScripts",
+          "mountApp": {
+            "$path": "scripts/mountApp.client.lua"
+          }
+        }
+      }
+    }
+  }
+}
