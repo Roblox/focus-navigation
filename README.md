@@ -4,7 +4,7 @@
 		<img src="https://github.com/Roblox/focus-navigation/actions/workflows/ci.yml/badge.svg" alt="CI Build Status" />
 	</a>
 	<a href="https://coveralls.io/github/Roblox/focus-navigation?branch=main">
-		<img src="https://coveralls.io/repos/github/Roblox/focus-navigation/badge.svg?branch=master" alt="Coveralls Coverage" />
+		<img src="https://coveralls.io/repos/github/Roblox/focus-navigation/badge.svg?branch=main" alt="Coveralls Coverage" />
 	</a>
 	<!-- <a href="https://roblox.github.io/focus-navigation">
 		<img src="https://img.shields.io/badge/docs-website-green.svg" alt="Documentation" />
