@@ -18,7 +18,7 @@ local cleanup = ReactTestingLibrary.cleanup
 local Collections = require(Packages.Collections)
 local Object = Collections.Object
 
-local FocusNavigationProvider = ReactFocusNavigation.FocusNavigationProvider
+local FocusNavigationContext = ReactFocusNavigation.FocusNavigationContext
 local FocusNavigationService = ReactFocusNavigation.FocusNavigationService
 
 local App = require(script.Parent.Parent.App)
@@ -35,7 +35,7 @@ afterEach(function()
 end)
 
 local function FocusNavigationServiceWrapper(props)
-	return React.createElement(FocusNavigationProvider, {
+	return React.createElement(FocusNavigationContext.Provider, {
 		value = focusNavigationService,
 	}, props.children)
 end

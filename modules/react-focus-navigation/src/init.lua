@@ -16,7 +16,7 @@ return {
 	EngineInterface = FocusNavigation.EngineInterface,
 
 	-- Context
-	FocusNavigationProvider = FocusNavigationContext.Provider,
+	FocusNavigationContext = FocusNavigationContext,
 
 	-- Observable properties
 	useActiveEventMap = useActiveEventMap,

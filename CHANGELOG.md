@@ -1,6 +1,7 @@
 # Focus Navigation Changelog
 
 ## Unreleased Changes
+* Refactor to expose context directly ([#14](https://github.com/Roblox/focus-navigation/pull/14))
 * Add demo app ([#10](https://github.com/Roblox/focus-navigation/pull/10))
 * Add `useFocusedGuiObject` hook ([#13](https://github.com/Roblox/focus-navigation/pull/13))
 * Fix an issue with active event map not filtering based on which events have registered handlers ([#12](https://github.com/Roblox/focus-navigation/pull/12))

@@ -51,14 +51,35 @@ A mapping of input KeyCodes to event names. When an `EventMap` is registered on 
 
 Data on the [`InputObject`](https://create.roblox.com/docs/reference/engine/classes/InputObject) provided to the input event callback will be copied into the `eventData` field of the `Event` passed to the handler.
 
-## API
+## Top-Level API
+
+### FocusNavigationService
+
+```lua
+type FocusNavigationService = FocusNavigation.FocusNavigationService
+```
+Exports the FocusNavigationService object, which can be instantiated using the static [`new` function](#new) described below.
+
+### EngineInterface
+
+```lua
+type EngineInterface = {
+    CoreGui = FocusNavigation.EngineInterfaceType,
+    PlayerGui = FocusNavigation.EngineInterfaceType,
+}
+```
+Provides the two possible engine interface modes for the `FocusNavigationService`. These interfaces abstract over engine functionality that the `FocusNavigationService` needs to use under the hood, such as distinguishing between `GuiService.SelectedObject` and `GuiService.SelectedCoreObject`.
+
+## FocusNavigationService API
 
 ### new
 
 ```lua
-FocusNavigationService.new()
+FocusNavigationService.new(engineInterface: FocusNavigation.EngineInterfaceType)
 ```
-Create a new `FocusNavigationService`. Intended only to be called once.
+Create a new `FocusNavigationService`. Intended only to be called once. Provide the relevant [`EngineInterface`](#engineinterface) for the context:
+* use `EngineInterface.CoreGui` to manage focus for UI mounted under the `CoreGui` service
+* use `EngineInterface.PlayerGui` to manage focus for UI mounted under a Player instance's `PlayerGui` child
 
 ### registerEventMap
 

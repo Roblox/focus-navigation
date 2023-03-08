@@ -38,7 +38,7 @@ local function App(props)
 		end
 	end
 	return React.createElement(
-		ReactFocusNavigation.FocusNavigationProvider,
+		ReactFocusNavigation.FocusNavigationContext.Provider,
 		{
 			value = focusNav.current,
 		},

@@ -1,5 +1,38 @@
 # ReactFocusNavigation
 
+## FocusNavigation
+
+### FocusNavigationService
+```lua
+type FocusNavigationService = FocusNavigation.FocusNavigationService
+```
+Re-exports the `FocusNavigationService` [from the focus-navigation package](../focus-navigation/README.md#focusnavigationservice).
+
+### EngineInterface
+```lua
+type EngineInterface = FocusNavigation.EngineInterface
+```
+Re-exports the `EngineInterface` [from the focus-navigation package](../focus-navigation/README.md#engineinterface).
+
+## Context
+
+### FocusNavigationContext
+```lua
+type FocusNavigationContext = React.Context<FocusNavigation.FocusNavigationService?>
+```
+A context object to use for providing and consuming a `FocusNavigationService` instance.
+
+Use `FocusNavigationContext.Provider` to include a `FocusNavigationService` instance in a React tree:
+```lua
+local focusNav = FocusNavigationService.new(EngineInterface.CoreGui)
+
+React.createElement(FocusNavigationContext.Provider, {
+  value = focusNav
+}, children)
+```
+
+You should generally only need to consume the context-provided `FocusNavigationService` via the [hooks](#hooks) provided with this library. However, you can also use `FocusNavigationContext.Consumer` or `React.useContext(FocusNavigationContext)` if you need direct access to the `FocusNavigationService`.
+
 ## Hooks
 
 ### useEventMap
