@@ -1,6 +1,9 @@
 # Focus Navigation Changelog
 
 ## Unreleased Changes
+
+## 0.1.0 (3-7-2023)
+
 * Refactor to expose context directly ([#14](https://github.com/Roblox/focus-navigation/pull/14))
 * Add demo app ([#10](https://github.com/Roblox/focus-navigation/pull/10))
 * Add `useFocusedGuiObject` hook ([#13](https://github.com/Roblox/focus-navigation/pull/13))
