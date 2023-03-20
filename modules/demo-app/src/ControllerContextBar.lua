@@ -1,26 +1,26 @@
 local Packages = script.Parent.Parent
 local React = require(Packages.React)
 local ReactFocusNavigation = require(Packages.ReactFocusNavigation)
-
-local useLastInputDevice = require(script.Parent.hooks.useLastInputDevice)
+local useLastInputMethod = ReactFocusNavigation.useLastInputMethod
+local useActiveEventMap = ReactFocusNavigation.useActiveEventMap
 
 local function ControllerContextBar()
-	local lastInputDevice = useLastInputDevice()
+	local lastInputMethod = useLastInputMethod()
+	local eventMap = useActiveEventMap()
 
-	local eventMap = ReactFocusNavigation.useActiveEventMap()
 	local eventMapText = React.useMemo(function()
-		if lastInputDevice == "None" or lastInputDevice == "Mouse" then
+		if lastInputMethod ~= "Keyboard" and lastInputMethod ~= "Gamepad" then
 			return "{}"
 		end
 
 		local labelText = "{ "
 		for k, v in eventMap do
 			if string.match(k.Name, "Button") then
-				if lastInputDevice == "Keyboard" then
+				if lastInputMethod == "Keyboard" then
 					continue
 				end
 			else
-				if lastInputDevice == "Gamepad" then
+				if lastInputMethod == "Gamepad" then
 					continue
 				end
 			end
@@ -29,7 +29,7 @@ local function ControllerContextBar()
 		labelText ..= "}"
 
 		return labelText
-	end, { eventMap, lastInputDevice })
+	end, { eventMap, lastInputMethod })
 
 	if eventMapText == "{}" then
 		return nil

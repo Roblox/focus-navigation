@@ -2,6 +2,8 @@
 
 ## Unreleased Changes
 
+* Introduce the `useLastInputMethod` hook ([#15](https://github.com/Roblox/focus-navigation/pull/15))
+
 ## 0.1.0 (3-7-2023)
 
 * Refactor to expose context directly ([#14](https://github.com/Roblox/focus-navigation/pull/14))
