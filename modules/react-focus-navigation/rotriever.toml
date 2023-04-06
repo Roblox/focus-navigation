@@ -7,6 +7,7 @@ files = ["*", "!**/__tests__"]
 
 [dependencies]
 FocusNavigation = { path = "../focus-navigation" }
+Utils = { path = "../utils" }
 React = "github.com/roblox/roact-alignment@17.0.1-rc.18"
 
 [dev_dependencies]

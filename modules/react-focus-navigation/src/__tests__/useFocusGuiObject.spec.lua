@@ -229,4 +229,21 @@ describeEach({ CoreConfig, PlayerConfig })("$root", function(config)
 			eventName = "blur",
 		}))
 	end)
+
+	it("warns when used with no FocusNavigationService in tree", function()
+		local focusGuiObject
+		local function Component()
+			focusGuiObject = useFocusGuiObject()
+
+			return React.createElement("TextButton", {
+				Size = UDim2.fromScale(1, 1),
+				Text = "Foo",
+			})
+		end
+
+		render(React.createElement(Component))
+		expect(focusGuiObject).toWarnDev({
+			"Could not capture focus with no FocusNavigationService",
+		})
+	end)
 end)

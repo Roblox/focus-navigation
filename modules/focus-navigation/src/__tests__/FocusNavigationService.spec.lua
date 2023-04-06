@@ -88,7 +88,7 @@ describe("engine interface", function()
 
 	it("should be able to focus child of non-Selectable Player descendant", function()
 		mountedTree = getMountedGui(PlayerGui)
-		service = FocusNavigationService.new(EngineInterface.CoreGui)
+		service = FocusNavigationService.new(EngineInterface.PlayerGui)
 		service:focusGuiObject(mountedTree.container, false)
 		expect(GuiService.SelectedObject).toEqual(mountedTree.button)
 		expect(GuiService.SelectedCoreObject).toBeNil()
@@ -348,12 +348,7 @@ describe("Basic functionality", function()
 				eventData = beginAEvent,
 			}))
 		end)
-
-		-- it("should capture and bubble when map is defined in ancestor")
 	end)
-
-	-- TODO: What sort of warnings/failure modes should we have here?
-	-- it("should warn when invoking an undefined event", function() end)
 end)
 
 -- FIXME Luau: types don't play nicely with callable tables
@@ -912,5 +907,37 @@ describe("observable properties", function()
 			focusNavigationService:registerEventHandler(tree.leftButton, "fooOverride", noop)
 			expect(activeEventMap:getValue()).toEqual({ [Enum.KeyCode.ButtonX] = "fooOverride" })
 		end)
+	end)
+end)
+
+describe("improper usage warnings", function()
+	it("warns on registering over existing event", function()
+		local instance = Instance.new("Frame")
+
+		focusNavigationService:registerEventMap(instance, {
+			[Enum.KeyCode.ButtonA] = "Foo",
+		})
+		expect(function()
+			focusNavigationService:registerEventMap(instance, {
+				[Enum.KeyCode.ButtonA] = "Bar",
+			})
+		end).toWarnDev({
+			"New event will replace existing registered event mapped to Enum%.KeyCode%.ButtonA:\n.*Bar\n.*Foo",
+		})
+	end)
+
+	it("warns on deregistering non-registered event", function()
+		local instance = Instance.new("Frame")
+
+		focusNavigationService:registerEventMap(instance, {
+			[Enum.KeyCode.ButtonB] = "Foo",
+		})
+		expect(function()
+			focusNavigationService:deregisterEventMap(instance, {
+				[Enum.KeyCode.ButtonB] = "Bar",
+			})
+		end).toWarnDev({
+			"Cannot deregister non%-matching event input Enum%.KeyCode%.ButtonB:.*Bar.*Foo",
+		})
 	end)
 end)

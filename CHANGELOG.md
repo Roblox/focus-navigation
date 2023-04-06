@@ -2,6 +2,7 @@
 
 ## Unreleased Changes
 
+* Add some dev mode warnings for subtle misuses or unexpected inputs ([#16](https://github.com/Roblox/focus-navigation/pull/16))
 * Introduce the `useLastInputMethod` hook ([#15](https://github.com/Roblox/focus-navigation/pull/15))
 
 ## 0.1.0 (3-7-2023)

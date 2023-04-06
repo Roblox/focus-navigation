@@ -125,7 +125,11 @@ describe("EventPropagationService", function()
 					handler = functionThree,
 				},
 			}
-			eventPropagationService:registerEventHandlers(instance, eventHandlers2)
+			expect(function()
+				eventPropagationService:registerEventHandlers(instance, eventHandlers2)
+			end).toWarnDev({
+				"New handler bound to the Bubble phase of 'eventType2' will override an existing handler",
+			})
 			local expected = {
 				[instance] = {
 					eventType1 = {
@@ -725,5 +729,67 @@ describe("EventPropagationService", function()
 				end
 			)
 		end)
+	end)
+end)
+
+describe("improper usage warnings", function()
+	it("warns on registering over existing event handler", function()
+		local eventPropagationService = EventPropagationService.new()
+		local instance = Instance.new("Frame")
+
+		local function originalHandler(_) end
+		eventPropagationService:registerEventHandler(instance, "Foo", originalHandler, "Bubble")
+
+		-- No warnings for binding to a different phase
+		expect(function()
+			eventPropagationService:registerEventHandler(instance, "Foo", function(_) end, "Capture")
+		end).toWarnDev({})
+		expect(function()
+			eventPropagationService:registerEventHandler(instance, "Foo", function(_) end, "Bubble")
+		end).toWarnDev({
+			"New handler bound to the Bubble phase of 'Foo' will override an existing handler",
+		})
+	end)
+
+	it("warns on deregistering non-registered event", function()
+		local eventPropagationService = EventPropagationService.new()
+		local instance = Instance.new("Frame")
+
+		local function handler(_) end
+		eventPropagationService:registerEventHandler(instance, "Foo", handler, "Bubble")
+		eventPropagationService:registerEventHandler(instance, "Foo", handler, "Capture")
+
+		-- No warnings when the event is actually bound
+		expect(function()
+			eventPropagationService:deregisterEventHandler(instance, "Foo", handler, "Bubble")
+		end).toWarnDev({})
+		expect(function()
+			-- Phase not registered
+			eventPropagationService:deregisterEventHandler(instance, "Foo", handler, "Bubble")
+			-- Event not registered
+			eventPropagationService:deregisterEventHandler(instance, "Bar", handler, "Bubble")
+			-- Wrong handler
+			eventPropagationService:deregisterEventHandler(instance, "Foo", function(_) end, "Capture")
+		end).toWarnDev({
+			"Cannot deregister unregistered event handler bound to the Bubble phase of 'Foo'",
+			"Cannot deregister unregistered event handler bound to the Bubble phase of 'Bar'",
+			"Deregistering non%-matching event handler bound to the Capture phase of 'Foo'",
+		})
+	end)
+
+	it("includes function definition info in warnings", function()
+		local function handlerOne() end
+		local function handlerTwo() end
+
+		local eventPropagationService = EventPropagationService.new()
+		local instance = Instance.new("Frame")
+
+		eventPropagationService:registerEventHandler(instance, "Foo", handlerOne, "Bubble")
+
+		expect(function()
+			eventPropagationService:registerEventHandler(instance, "Foo", handlerTwo, "Bubble")
+		end).toWarnDev({
+			debug.info(handlerOne, "sln") .. ".*" .. debug.info(handlerTwo, "sln"),
+		})
 	end)
 end)
