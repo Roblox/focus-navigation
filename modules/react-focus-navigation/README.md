@@ -115,10 +115,10 @@ Inputs from the `UserInputType` enum are simplified to "Keyboard", "Mouse", "Gam
 
 The "None" value is only used when the initial value does not map to one of the other four.
 
-### useCaptureFocus
+### useFocusGuiObject
 ```lua
-type CaptureFocus = (React.Ref<GuiObject?> | GuiObject | nil) -> ()
-type useCaptureFocus = () -> CaptureFocus
+type FocusGuiObject = (React.Ref<GuiObject?> | GuiObject | nil) -> ()
+type useFocusGuiObject = () -> FocusGuiObject
 ```
 Returns a function that can be used for imperatively capturing focus. This is useful for adapting focus management to other complexities of application UI, including animations and app navigation transitions. Call this function with a `GuiObject` or an object ref to move focus to the target or one of its `Selectable` descendants.
 
