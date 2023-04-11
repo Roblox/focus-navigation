@@ -18,6 +18,8 @@ local cleanup = ReactTestingLibrary.cleanup
 local Collections = require(Packages.Dev.Collections)
 local Object = Collections.Object
 
+local waitForEvents = require(script.Parent.waitForEvents)
+
 local FocusNavigationContext = require(script.Parent.Parent.FocusNavigationContext)
 local useFocusedGuiObject = require(script.Parent.Parent.useFocusedGuiObject)
 
@@ -78,17 +80,21 @@ it("return the current focus", function()
 
 	local one = result.getByText("one")
 	focusNavigationService:focusGuiObject(one, false)
+	waitForEvents()
 	expect(currentFocus).toHaveBeenLastCalledWith(one)
 
 	local two = result.getByText("two")
 	focusNavigationService:focusGuiObject(two, false)
+	waitForEvents()
 	expect(currentFocus).toHaveBeenLastCalledWith(two)
 
 	local three = result.getByText("three")
 	focusNavigationService:focusGuiObject(three, false)
+	waitForEvents()
 	expect(currentFocus).toHaveBeenLastCalledWith(three)
 
 	focusNavigationService:focusGuiObject(one, false)
+	waitForEvents()
 	expect(currentFocus).toHaveBeenLastCalledWith(one)
 end)
 
@@ -101,10 +107,12 @@ it("does not update if the focus doesn't change", function()
 
 	local one = result.getByText("one")
 	focusNavigationService:focusGuiObject(one, false)
+	waitForEvents()
 	expect(currentFocus).toHaveBeenLastCalledWith(one)
 
 	local callCount = #currentFocus.mock.calls
 	focusNavigationService:focusGuiObject(one, false)
+	waitForEvents()
 	expect(#currentFocus.mock.calls).toEqual(callCount)
 end)
 
@@ -117,8 +125,10 @@ it("returns nil when focus is lost", function()
 
 	local one = result.getByText("one")
 	focusNavigationService:focusGuiObject(one, false)
+	waitForEvents()
 	expect(currentFocus).toHaveBeenLastCalledWith(one)
 
 	focusNavigationService:focusGuiObject(nil, false)
+	waitForEvents()
 	expect(currentFocus).toHaveBeenLastCalledWith(nil)
 end)

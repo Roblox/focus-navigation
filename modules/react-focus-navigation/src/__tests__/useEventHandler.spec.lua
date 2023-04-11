@@ -22,6 +22,8 @@ local GamePad = Rhodium.VirtualInput.GamePad
 local Collections = require(Packages.Dev.Collections)
 local Object = Collections.Object
 
+local waitForEvents = require(script.Parent.waitForEvents)
+
 local FocusNavigationContext = require(script.Parent.Parent.FocusNavigationContext)
 local useEventHandler = require(script.Parent.Parent.useEventHandler)
 
@@ -76,6 +78,7 @@ it("should have no effect if no context is provided", function()
 		[Enum.KeyCode.ButtonX] = "onXButton",
 	})
 	focusNavigationService:focusGuiObject(instance, false)
+	waitForEvents()
 
 	local gamepad = GamePad.new()
 	act(function()
@@ -102,17 +105,20 @@ it("should receive focus and blur events when registered", function()
 
 	local leftButton = result.getByText("Confirm")
 	focusNavigationService:focusGuiObject(leftButton, false)
+	waitForEvents()
 
 	expect(leftFocusHandler).toHaveBeenCalledTimes(1)
 	expect(rightBlurHandler).toHaveBeenCalledTimes(0)
 
 	local rightButton = result.getByText("Cancel")
 	focusNavigationService:focusGuiObject(rightButton, false)
+	waitForEvents()
 
 	expect(leftFocusHandler).toHaveBeenCalledTimes(1)
 	expect(rightBlurHandler).toHaveBeenCalledTimes(0)
 
 	focusNavigationService:focusGuiObject(leftButton, false)
+	waitForEvents()
 
 	expect(leftFocusHandler).toHaveBeenCalledTimes(2)
 	expect(rightBlurHandler).toHaveBeenCalledTimes(1)
@@ -131,6 +137,7 @@ it("should deregister an event map on unmount", function()
 		[Enum.KeyCode.ButtonX] = "onXButton",
 	})
 	focusNavigationService:focusGuiObject(instance, false)
+	waitForEvents()
 
 	local gamepad = GamePad.new()
 	act(function()
@@ -172,6 +179,7 @@ it("should deregister old and register new handlers when they change", function(
 		[Enum.KeyCode.ButtonX] = "onXButton",
 	})
 	focusNavigationService:focusGuiObject(instance, false)
+	waitForEvents()
 
 	local gamepad = GamePad.new()
 	act(function()
@@ -208,6 +216,7 @@ it("should update the event map if the value changes after it updates", function
 		[Enum.KeyCode.ButtonX] = "onXButton",
 	})
 	focusNavigationService:focusGuiObject(instance, false)
+	waitForEvents()
 
 	local gamepad = GamePad.new()
 	act(function()
@@ -245,6 +254,7 @@ it("should call the correct handler if the eventMap updates", function()
 		[Enum.KeyCode.ButtonX] = "onXButton",
 	})
 	focusNavigationService:focusGuiObject(instance, false)
+	waitForEvents()
 
 	local gamepad = GamePad.new()
 	act(function()
@@ -292,6 +302,7 @@ it("should not do anything if the returned ref is not used", function()
 		[Enum.KeyCode.ButtonX] = "onXButton",
 	})
 	focusNavigationService:focusGuiObject(instance, false)
+	waitForEvents()
 	local gamepad = GamePad.new()
 	act(function()
 		gamepad:hitButton(Enum.KeyCode.ButtonX)
@@ -371,6 +382,7 @@ it("binds to the correct phase", function()
 
 	local leftButton = result.getByText("Confirm")
 	focusNavigationService:focusGuiObject(leftButton, false)
+	waitForEvents()
 
 	expect(captureFocusHandler).toHaveBeenCalledTimes(1)
 	expect(captureFocusHandler).toHaveBeenCalledWith(expect.objectContaining({
@@ -380,6 +392,7 @@ it("binds to the correct phase", function()
 
 	local rightButton = result.getByText("Cancel")
 	focusNavigationService:focusGuiObject(rightButton, false)
+	waitForEvents()
 
 	expect(captureFocusHandler).toHaveBeenCalledTimes(1)
 	expect(bubbleFocusHandler).toHaveBeenCalledTimes(1)

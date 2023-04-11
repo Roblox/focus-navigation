@@ -22,6 +22,8 @@ local cleanup = ReactTestingLibrary.cleanup
 local Collections = require(Packages.Dev.Collections)
 local Object = Collections.Object
 
+local waitForEvents = require(script.Parent.waitForEvents)
+
 local FocusNavigationContext = require(script.Parent.Parent.FocusNavigationContext)
 local useFocusGuiObject = require(script.Parent.Parent.useFocusGuiObject)
 local useEventHandlerMap = require(script.Parent.Parent.useEventHandlerMap)
@@ -131,6 +133,7 @@ describeEach({ CoreConfig, PlayerConfig })("$root", function(config)
 		expect(config.interface.getSelection()).toBe(nil)
 		local instance = result.getByText("Foo")
 		focusGuiObject(instance)
+		waitForEvents()
 		expect(config.interface.getSelection()).toBe(instance)
 	end)
 
@@ -158,6 +161,7 @@ describeEach({ CoreConfig, PlayerConfig })("$root", function(config)
 		expect(config.interface.getSelection()).toBe(nil)
 		local nonSelectableInstance = result.getByText("Not Selectable")
 		focusGuiObject(nonSelectableInstance)
+		waitForEvents()
 
 		local selectableDescendant = result.getByText("Selectable Button")
 		expect(config.interface.getSelection()).toBe(selectableDescendant)
@@ -210,6 +214,7 @@ describeEach({ CoreConfig, PlayerConfig })("$root", function(config)
 		local result = renderUnderRoot(React.createElement(Component))
 		local instance = result.getByText("Foo")
 		focusGuiObject(instance)
+		waitForEvents()
 
 		expect(config.interface.getSelection()).toBe(instance)
 		expect(eventCallback).toHaveBeenCalledTimes(1)
@@ -218,12 +223,15 @@ describeEach({ CoreConfig, PlayerConfig })("$root", function(config)
 		}))
 
 		focusGuiObject(nil, true)
+		waitForEvents()
 		expect(eventCallback).toHaveBeenCalledTimes(1)
 
 		focusGuiObject(instance, true)
+		waitForEvents()
 		expect(eventCallback).toHaveBeenCalledTimes(1)
 
 		focusGuiObject(nil, false)
+		waitForEvents()
 		expect(eventCallback).toHaveBeenCalledTimes(2)
 		expect(eventCallback).toHaveBeenLastCalledWith(expect.objectContaining({
 			eventName = "blur",

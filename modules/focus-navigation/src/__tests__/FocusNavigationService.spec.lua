@@ -14,6 +14,7 @@ local afterEach = JestGlobals.afterEach
 
 local MockEngineInterface = require(script.Parent.MockEngineInterface)
 local createGuiObjectTree = require(script.Parent.createGuiObjectTree)
+local waitForEvents = require(script.Parent.waitForEvents)
 
 local FocusNavigationService = require(script.Parent.Parent.FocusNavigationService)
 local EngineInterface = require(script.Parent.Parent.EngineInterface)
@@ -442,18 +443,21 @@ describeEach({ { phase = "Capture" }, { phase = "Bubble" } })("focus and blur: $
 		local mountedTree = getGuiMountedTo(CoreGui)
 		local service = FocusNavigationService.new(EngineInterface.CoreGui)
 		service:focusGuiObject(mountedTree.leftButton, false)
+		waitForEvents()
 
 		local handlerMap = getHandlerMap(phaseConfig.phase)
 		service:registerEventHandlers(mountedTree.leftButton, handlerMap)
 		service:registerEventHandlers(mountedTree.rightButton, handlerMap)
 
 		GuiService.SelectedCoreObject = mountedTree.rightButton
+		waitForEvents()
 
 		expect(handlerMap.blur.handler).toHaveBeenCalledTimes(1)
 		expect(handlerMap.focus.handler).toHaveBeenCalledTimes(1)
 
 		-- move non-core focus
 		GuiService.SelectedObject = mountedTree.leftButton
+		waitForEvents()
 
 		-- No new callbacks should have happened
 		expect(handlerMap.blur.handler).toHaveBeenCalledTimes(1)
@@ -464,18 +468,21 @@ describeEach({ { phase = "Capture" }, { phase = "Bubble" } })("focus and blur: $
 		local mountedTree = getGuiMountedTo(PlayerGui)
 		local service = FocusNavigationService.new(EngineInterface.PlayerGui)
 		service:focusGuiObject(mountedTree.leftButton, false)
+		waitForEvents()
 
 		local handlerMap = getHandlerMap(phaseConfig.phase)
 		service:registerEventHandlers(mountedTree.leftButton, handlerMap)
 		service:registerEventHandlers(mountedTree.rightButton, handlerMap)
 
 		GuiService.SelectedObject = mountedTree.rightButton
+		waitForEvents()
 
 		expect(handlerMap.blur.handler).toHaveBeenCalledTimes(1)
 		expect(handlerMap.focus.handler).toHaveBeenCalledTimes(1)
 
 		-- move core focus
 		GuiService.SelectedCoreObject = mountedTree.leftContainer
+		waitForEvents()
 
 		-- No new callbacks should have happened
 		expect(handlerMap.blur.handler).toHaveBeenCalledTimes(1)

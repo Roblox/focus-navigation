@@ -18,6 +18,8 @@ local cleanup = ReactTestingLibrary.cleanup
 local Collections = require(Packages.Dev.Collections)
 local Object = Collections.Object
 
+local waitForEvents = require(script.Parent.waitForEvents)
+
 local FocusNavigationContext = require(script.Parent.Parent.FocusNavigationContext)
 local useEventMap = require(script.Parent.Parent.useEventMap)
 local useEventHandlerMap = require(script.Parent.Parent.useEventHandlerMap)
@@ -88,6 +90,7 @@ it("should have no effect if no context is provided", function()
 
 	local instance = result.getByText("Show More")
 	focusNavigationService:focusGuiObject(instance, false)
+	waitForEvents()
 
 	expect(activeEventMapSpy).toHaveBeenCalledTimes(0)
 end)
@@ -103,6 +106,7 @@ it("should register an event map when its ref is populated", function()
 
 	local instance = result.getByText("Show More")
 	focusNavigationService:focusGuiObject(instance, false)
+	waitForEvents()
 
 	expect(activeEventMapSpy).toHaveBeenCalledTimes(1)
 	expect(activeEventMapSpy).toHaveBeenCalledWith({ [Enum.KeyCode.ButtonX] = "showMore" })
@@ -119,6 +123,7 @@ it("should deregister an event map when it cleans up", function()
 
 	local instance = result.getByText("Show More")
 	focusNavigationService:focusGuiObject(instance, false)
+	waitForEvents()
 
 	expect(activeEventMapSpy).toHaveBeenCalledTimes(1)
 
@@ -138,6 +143,7 @@ it("should update the event map if the value changes after it updates", function
 
 	local instance = result.getByText("Show More")
 	focusNavigationService:focusGuiObject(instance, false)
+	waitForEvents()
 
 	expect(activeEventMapSpy).toHaveBeenCalledTimes(1)
 
@@ -164,6 +170,7 @@ it("should not re-register an existing map if the inputs haven't changed", funct
 
 	local instance = result.getByText("Show More")
 	focusNavigationService:focusGuiObject(instance, false)
+	waitForEvents()
 
 	expect(activeEventMapSpy).toHaveBeenCalledTimes(1)
 	expect(activeEventMapSpy).toHaveBeenCalledWith({ [Enum.KeyCode.ButtonX] = "showMore" })
@@ -194,6 +201,7 @@ it("should not do anything if the returned ref is not used", function()
 
 	local instance = result.getByText("Show More")
 	focusNavigationService:focusGuiObject(instance, false)
+	waitForEvents()
 
 	expect(activeEventMapSpy).toHaveBeenCalledTimes(0)
 end)

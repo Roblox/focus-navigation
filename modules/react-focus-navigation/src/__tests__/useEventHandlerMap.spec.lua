@@ -22,6 +22,8 @@ local GamePad = Rhodium.VirtualInput.GamePad
 local Collections = require(Packages.Dev.Collections)
 local Object = Collections.Object
 
+local waitForEvents = require(script.Parent.waitForEvents)
+
 local FocusNavigationContext = require(script.Parent.Parent.FocusNavigationContext)
 local useEventHandlerMap = require(script.Parent.Parent.useEventHandlerMap)
 
@@ -77,6 +79,7 @@ it("should have no effect if no context is provided", function()
 		[Enum.KeyCode.ButtonX] = "onXButton",
 	})
 	focusNavigationService:focusGuiObject(instance, false)
+	waitForEvents()
 
 	local gamepad = GamePad.new()
 	act(function()
@@ -98,11 +101,13 @@ it("should receive focus and blur events when registered", function()
 
 	local instance = result.getByText("Confirm")
 	focusNavigationService:focusGuiObject(instance, false)
+	waitForEvents()
 
 	expect(focusHandler).toHaveBeenCalledTimes(1)
 	expect(blurHandler).toHaveBeenCalledTimes(0)
 
 	focusNavigationService:focusGuiObject(nil, false)
+	waitForEvents()
 
 	expect(focusHandler).toHaveBeenCalledTimes(1)
 	expect(blurHandler).toHaveBeenCalledTimes(1)
@@ -122,6 +127,7 @@ it("should deregister an event map on unmount", function()
 		[Enum.KeyCode.ButtonX] = "onXButton",
 	})
 	focusNavigationService:focusGuiObject(instance, false)
+	waitForEvents()
 
 	local gamepad = GamePad.new()
 	act(function()
@@ -165,6 +171,7 @@ it("should update the event map if the value changes after it updates", function
 		[Enum.KeyCode.ButtonX] = "onXButton",
 	})
 	focusNavigationService:focusGuiObject(instance, false)
+	waitForEvents()
 
 	local gamepad = GamePad.new()
 	act(function()
@@ -251,6 +258,7 @@ it("should not do anything if the returned ref is not used", function()
 		[Enum.KeyCode.ButtonX] = "onXButton",
 	})
 	focusNavigationService:focusGuiObject(instance, false)
+	waitForEvents()
 	local gamepad = GamePad.new()
 	act(function()
 		gamepad:hitButton(Enum.KeyCode.ButtonX)

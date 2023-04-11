@@ -17,6 +17,8 @@ local cleanup = ReactTestingLibrary.cleanup
 local Collections = require(Packages.Dev.Collections)
 local Object = Collections.Object
 
+local waitForEvents = require(script.Parent.waitForEvents)
+
 local FocusNavigationContext = require(script.Parent.Parent.FocusNavigationContext)
 local useActiveEventMap = require(script.Parent.Parent.useActiveEventMap)
 
@@ -90,6 +92,7 @@ it("return the current active event map", function()
 	})
 	focusNavigationService:registerEventHandler(container, "Jump", noop)
 	focusNavigationService:focusGuiObject(container, false)
+	waitForEvents()
 
 	local result = renderWithFocusNav(React.createElement(ActiveEventViewer, { container = container } :: any))
 	expect(result.queryByText("W: Jump")).toBeDefined()
@@ -110,6 +113,7 @@ it("updates the active event map when it changes due to focus change", function(
 	expect(result.queryByText("No Active Events")).toBeDefined()
 
 	focusNavigationService:focusGuiObject(ref.current, false)
+	waitForEvents()
 
 	expect(result.queryByText("Z: Attack")).toBeDefined()
 	expect(result.queryByText("X: Special")).toBeDefined()
@@ -128,6 +132,7 @@ it("updates the active event map when event maps get reassigned", function()
 	expect(result.queryByText("No Active Events")).toBeDefined()
 
 	focusNavigationService:focusGuiObject(ref.current, false)
+	waitForEvents()
 
 	expect(result.queryByText("Z: Attack")).toBeDefined()
 	expect(result.queryByText("X: Block")).toBeNil()
@@ -156,6 +161,7 @@ it("updates the active event map when the FocusNavigationService changes", funct
 	expect(result.queryByText("No Active Events")).toBeDefined()
 
 	focusNavigationService:focusGuiObject(ref.current, false)
+	waitForEvents()
 
 	expect(result.queryByText("Z: Attack")).toBeDefined()
 

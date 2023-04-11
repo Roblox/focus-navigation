@@ -1,0 +1,26 @@
+{
+    "run": "${configFolder}/../scripts/run-tests.lua",
+    "load": {
+        "model": "${configFolder}/../tests.project.json",
+        "asRobloxScript": true
+    },
+    "virtualInput": true,
+    "headlessRenderer": true,
+    "fastFlags": {
+        "overrides": [
+            "EnableLoadModule=true",
+            "EnableSignalBehavior=true",
+            "DebugForceDeferredSignalBehavior=true",
+        ]
+    },
+    "lua": {
+        "globals": [
+            "RTL_SKIP_AUTO_CLEANUP=true",
+            "__DEV__=true",
+            "__ROACT_17_MOCK_SCHEDULER__=true"
+        ]
+    },
+    "testService": {
+        "errorExitCode": 201
+    }
+}
