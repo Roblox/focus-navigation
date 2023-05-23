@@ -149,11 +149,15 @@ it("should deregister an event map on unmount", function()
 	)
 
 	result.unmount()
+	expect(handler).toHaveBeenCalledTimes(3)
+	expect(handler).toHaveBeenLastCalledWith(expect.objectContaining({
+		eventData = expect.objectContaining({ UserInputState = Enum.UserInputState.Cancel }),
+	}))
 
 	act(function()
 		gamepad:hitButton(Enum.KeyCode.ButtonX)
 	end)
-	expect(handler).toHaveBeenCalledTimes(2)
+	expect(handler).toHaveBeenCalledTimes(3)
 end)
 
 it("should update the event map if the value changes after it updates", function()
@@ -186,11 +190,14 @@ it("should update the event map if the value changes after it updates", function
 		},
 		text = "Confirm",
 	}))
+	expect(handlerA).toHaveBeenCalledTimes(3)
+	expect(handlerB).toHaveBeenCalledTimes(0)
+
 	act(function()
 		gamepad:hitButton(Enum.KeyCode.ButtonX)
 	end)
 
-	expect(handlerA).toHaveBeenCalledTimes(2)
+	expect(handlerA).toHaveBeenCalledTimes(3)
 	expect(handlerB).toHaveBeenCalledTimes(2)
 end)
 
@@ -225,13 +232,15 @@ it("should call the correct handler if the eventMap updates", function()
 	focusNavigationService:deregisterEventMap(instance, {
 		[Enum.KeyCode.ButtonX] = "onXButton",
 	})
+	-- cancellation event
+	expect(onXHandler).toHaveBeenCalledTimes(3)
 
 	act(function()
 		gamepad:hitButton(Enum.KeyCode.ButtonX)
 		gamepad:hitButton(Enum.KeyCode.ButtonY)
 	end)
 
-	expect(onXHandler).toHaveBeenCalledTimes(2)
+	expect(onXHandler).toHaveBeenCalledTimes(3)
 	expect(onYHandler).toHaveBeenCalledTimes(2)
 end)
 

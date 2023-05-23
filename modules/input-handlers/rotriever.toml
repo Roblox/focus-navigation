@@ -1,0 +1,16 @@
+[package]
+name = "InputHandlers"
+authors = ["Roblox"]
+version = { workspace = true }
+content_root = "src"
+files = ["*", "!**/__tests__"]
+
+[dependencies]
+FocusNavigation = { path = "../focus-navigation" }
+Timers = "github.com/roblox/luau-polyfill@1.2.3"
+
+[dev_dependencies]
+EventPropagation = { path = "../event-propagation" }
+
+JestGlobals = { workspace = true }
+Rhodium = "github.com/roblox/rhodium@0.4.6"

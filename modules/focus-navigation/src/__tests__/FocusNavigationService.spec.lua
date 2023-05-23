@@ -145,8 +145,11 @@ describe("Basic functionality", function()
 		}))
 
 		focusNavigationService:deregisterEventHandler(tree.leftButton, "confirm", eventHandler, "Target")
+		-- cancellation event fires for deregistered handler
+		expect(eventHandler).toHaveBeenCalledTimes(2)
+
 		mockEngineInterface.simulateInput(beginAEvent)
-		expect(eventHandler).toHaveBeenCalledTimes(1)
+		expect(eventHandler).toHaveBeenCalledTimes(2)
 	end)
 
 	it("should only fire events for active event maps", function()
@@ -171,8 +174,11 @@ describe("Basic functionality", function()
 		focusNavigationService:deregisterEventMap(tree.leftButton, {
 			[Enum.KeyCode.A] = "confirm",
 		})
+		-- cancellation event fires for deregistered handler
+		expect(eventHandler).toHaveBeenCalledTimes(2)
+
 		mockEngineInterface.simulateInput(beginAEvent)
-		expect(eventHandler).toHaveBeenCalledTimes(1)
+		expect(eventHandler).toHaveBeenCalledTimes(2)
 	end)
 
 	it("should allow handlers to be registered before event maps", function()
@@ -348,6 +354,128 @@ describe("Basic functionality", function()
 				targetInstance = tree.leftButton,
 				eventData = beginAEvent,
 			}))
+		end)
+
+		describe("handler cancellation", function()
+			local handlerMap
+			beforeEach(function()
+				handlerMap = getConfirmHandlerMap("Target")
+				focusNavigationService:registerEventHandlers(tree.leftButton, handlerMap)
+				focusNavigationService:registerEventMap(tree.root, {
+					[Enum.KeyCode.A] = "confirm",
+				})
+			end)
+
+			it("should cancel bound input events when moving focus", function()
+				focusNavigationService:focusGuiObject(tree.leftButton, true)
+				expect(handlerMap.confirm.handler).toHaveBeenCalledTimes(0)
+
+				mockEngineInterface.simulateInput(beginAEvent)
+				expect(handlerMap.confirm.handler).toHaveBeenCalledTimes(1)
+
+				focusNavigationService:focusGuiObject(tree.rightButton, true)
+				expect(handlerMap.confirm.handler).toHaveBeenCalledTimes(2)
+				expect(handlerMap.confirm.handler).toHaveBeenLastCalledWith(expect.objectContaining({
+					currentInstance = tree.leftButton,
+					targetInstance = tree.leftButton,
+					eventData = {
+						KeyCode = Enum.KeyCode.Unknown,
+						UserInputType = Enum.UserInputType.None,
+						UserInputState = Enum.UserInputState.Cancel,
+					},
+				}))
+			end)
+
+			it("should cancel bound input events when deregistering event handlers", function()
+				focusNavigationService:focusGuiObject(tree.leftButton, true)
+				expect(handlerMap.confirm.handler).toHaveBeenCalledTimes(0)
+
+				mockEngineInterface.simulateInput(beginAEvent)
+				expect(handlerMap.confirm.handler).toHaveBeenCalledTimes(1)
+
+				focusNavigationService:deregisterEventHandler(
+					tree.leftButton,
+					"confirm",
+					handlerMap.confirm.handler,
+					handlerMap.confirm.phase
+				)
+				expect(handlerMap.confirm.handler).toHaveBeenCalledTimes(2)
+				expect(handlerMap.confirm.handler).toHaveBeenLastCalledWith(expect.objectContaining({
+					currentInstance = tree.leftButton,
+					targetInstance = tree.leftButton,
+					eventName = "confirm",
+					eventData = {
+						KeyCode = Enum.KeyCode.Unknown,
+						UserInputType = Enum.UserInputType.None,
+						UserInputState = Enum.UserInputState.Cancel,
+					},
+				}))
+			end)
+
+			it("should cancel bound input events when deregistering event handler maps", function()
+				focusNavigationService:focusGuiObject(tree.leftButton, true)
+				expect(handlerMap.confirm.handler).toHaveBeenCalledTimes(0)
+
+				mockEngineInterface.simulateInput(beginAEvent)
+				expect(handlerMap.confirm.handler).toHaveBeenCalledTimes(1)
+
+				focusNavigationService:deregisterEventHandlers(tree.leftButton, handlerMap)
+				expect(handlerMap.confirm.handler).toHaveBeenCalledTimes(2)
+				expect(handlerMap.confirm.handler).toHaveBeenLastCalledWith(expect.objectContaining({
+					currentInstance = tree.leftButton,
+					targetInstance = tree.leftButton,
+					eventData = {
+						KeyCode = Enum.KeyCode.Unknown,
+						UserInputType = Enum.UserInputType.None,
+						UserInputState = Enum.UserInputState.Cancel,
+					},
+				}))
+			end)
+
+			it("should cancel bound input events when deregistering event maps", function()
+				focusNavigationService:focusGuiObject(tree.leftButton, true)
+				expect(handlerMap.confirm.handler).toHaveBeenCalledTimes(0)
+
+				mockEngineInterface.simulateInput(beginAEvent)
+				expect(handlerMap.confirm.handler).toHaveBeenCalledTimes(1)
+
+				focusNavigationService:deregisterEventMap(tree.root, {
+					[Enum.KeyCode.A] = "confirm",
+				})
+				expect(handlerMap.confirm.handler).toHaveBeenCalledTimes(2)
+				expect(handlerMap.confirm.handler).toHaveBeenLastCalledWith(expect.objectContaining({
+					currentInstance = tree.leftButton,
+					targetInstance = tree.leftButton,
+					eventData = {
+						KeyCode = Enum.KeyCode.Unknown,
+						UserInputType = Enum.UserInputType.None,
+						UserInputState = Enum.UserInputState.Cancel,
+					},
+				}))
+			end)
+
+			it("should not cancel focus and blur events", function()
+				local focusHandler = jest.fn()
+				local blurHandler = jest.fn()
+				focusNavigationService:registerEventHandler(tree.leftButton, "focus", focusHandler)
+				focusNavigationService:registerEventHandler(tree.leftButton, "blur", blurHandler)
+
+				focusNavigationService:focusGuiObject(tree.leftButton, true)
+				expect(focusHandler).toHaveBeenCalledTimes(1)
+				expect(blurHandler).toHaveBeenCalledTimes(0)
+
+				focusNavigationService:focusGuiObject(nil, true)
+				expect(focusHandler).toHaveBeenCalledTimes(1)
+				expect(blurHandler).toHaveBeenCalledTimes(1)
+
+				focusNavigationService:deregisterEventHandler(tree.leftButton, "focus", focusHandler)
+				focusNavigationService:deregisterEventHandler(tree.leftButton, "blur", blurHandler)
+
+				-- blur and focus events don't handle user input, so they don't
+				-- receive "cancel" events
+				expect(focusHandler).toHaveBeenCalledTimes(1)
+				expect(blurHandler).toHaveBeenCalledTimes(1)
+			end)
 		end)
 	end)
 end)
