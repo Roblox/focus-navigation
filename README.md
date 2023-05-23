@@ -24,6 +24,13 @@ ReactFocusNavigation = "github.com/roblox/focus-navigation@0.2.1"
 ## Documentation
 *🛠 - Under Construction*
 
+### Public Interface
+See [ReactFocusNavigation](modules/react-focus-navigation/README.md).
+
+### Internal Documentation
+* [FocusNavigation](modules/focus-navigation/README.md).
+* [EventPropagation](modules/event-propagation/README.md).
+
 <!-- Documentation for Focus Navigation is available on [the official documentation website](https://roblox.github.io/focus-navigation). -->
 
 ### Contribution
