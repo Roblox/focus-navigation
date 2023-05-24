@@ -26,12 +26,12 @@ type Event<T> = {
     targetInstance: Instance,
     eventName: string,
     eventData: T,
-    cancel: () -> ()
+    cancel: (self: Event<T>) -> ()
 }
 ```
 `Event`s are passed to `EventHandler`s with the appropriate information when the `EventHandler` is called during event propagation. Note that each `EventHandler` is called with it's own `Event`, mutations to the Event will not be picked up by subsequent handlers.
 
-Events may have extra data attached to them when they're propagated, which can be read via the `eventData` field.
+Events may have extra data attached to them when they're propagated, which can be read via the `eventData` field. To prevent an event from being propagated further, call `event:cancel()` in an `EventHandler`.
 
 ### EventHandler
 ```lua

@@ -16,7 +16,8 @@ local handleInput
 local advanceTimersByTime, targetInstance, eventPropagationService
 beforeEach(function()
 	-- TODO: use only fake timers once they support Heartbeat
-	jest.mock(script.Parent.Parent.Heartbeat, function()
+	-- FIXME jest: mock should not accept type 'string'
+	jest.mock(script.Parent.Parent.Heartbeat :: any, function()
 		local MockHeartbeat = require(script.Parent.MockHeartbeat)
 		advanceTimersByTime = MockHeartbeat.advanceTimersByTime
 

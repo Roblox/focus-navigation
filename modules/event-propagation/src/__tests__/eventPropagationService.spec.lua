@@ -1,27 +1,34 @@
+--!strict
 local Packages = script.Parent.Parent.Parent
 local JestGlobals = require(Packages.Dev.JestGlobals)
 
-local it = JestGlobals.it
+-- FIXME: jest types for `it` don't acknowledge `each`, this should be
+local it: any = JestGlobals.it
 local expect = JestGlobals.expect
 local describe = JestGlobals.describe
 local jest = JestGlobals.jest
 
 local EventPropagationService = require(script.Parent.Parent.eventPropagationService)
+local Event = require(script.Parent.Parent.eventPropagationEvent)
+
+-- FIXME Luau: This type shouldn't need to be used explicitly, but Luau has
+-- trouble narrowing when it's nil-able
+type Phase = Event.EventPhase
 
 describe("EventPropagationService", function()
 	describe("registerEventHandlers", function()
 		it("should register a map of eventHandlers for an Instance", function()
 			local eventPropagationService = EventPropagationService.new()
 			local instance = Instance.new("Frame")
-			local function functionOne() end
-			local function functionTwo() end
+			local function functionOne(_) end
+			local function functionTwo(_) end
 			local eventHandlers = {
 				eventType1 = {
-					phase = "Capture",
+					phase = "Capture" :: Phase?,
 					handler = functionOne,
 				},
 				eventType2 = {
-					phase = "Bubble",
+					phase = "Bubble" :: Phase?,
 					handler = functionTwo,
 				},
 			}
@@ -36,12 +43,12 @@ describe("EventPropagationService", function()
 					},
 				},
 			}
-			expect(eventPropagationService.eventHandlerRegistry).toEqual(expected)
+			expect((eventPropagationService :: any).eventHandlerRegistry).toEqual(expected)
 		end)
 		it("should use the Bubble phase as the default phase for handlers that do not specify phase", function()
 			local eventPropagationService = EventPropagationService.new()
 			local instance = Instance.new("Frame")
-			local function functionOne() end
+			local function functionOne(_) end
 			local eventHandlers = {
 				eventType = {
 					handler = functionOne,
@@ -55,19 +62,19 @@ describe("EventPropagationService", function()
 					},
 				},
 			}
-			expect(eventPropagationService.eventHandlerRegistry).toEqual(expected)
+			expect((eventPropagationService :: any).eventHandlerRegistry).toEqual(expected)
 		end)
 		it("should register multiple eventHandlerMaps by Instance", function()
 			local eventPropagationService = EventPropagationService.new()
 			local instance1 = Instance.new("Frame")
 			local instance2 = Instance.new("Frame")
-			local function functionOne() end
-			local function functionTwo() end
-			local function functionThree() end
-			local function functionFour() end
+			local function functionOne(_) end
+			local function functionTwo(_) end
+			local function functionThree(_) end
+			local function functionFour(_) end
 			local eventHandlers1 = {
 				eventType1 = {
-					phase = "Capture",
+					phase = "Capture" :: Phase?,
 					handler = functionOne,
 				},
 				eventType2 = {
@@ -84,7 +91,7 @@ describe("EventPropagationService", function()
 			}
 			eventPropagationService:registerEventHandlers(instance1, eventHandlers1)
 			eventPropagationService:registerEventHandlers(instance2, eventHandlers2)
-			local expected = {
+			local expected: { [Instance]: any } = {
 				[instance1] = {
 					eventType1 = {
 						Capture = functionOne,
@@ -102,17 +109,17 @@ describe("EventPropagationService", function()
 					},
 				},
 			}
-			expect(eventPropagationService.eventHandlerRegistry).toEqual(expected)
+			expect((eventPropagationService :: any).eventHandlerRegistry).toEqual(expected)
 		end)
 		it("should overwrite eventHandlers in phases that already exist", function()
 			local eventPropagationService = EventPropagationService.new()
 			local instance = Instance.new("Frame")
-			local function functionOne() end
-			local function functionTwo() end
-			local function functionThree() end
+			local function functionOne(_) end
+			local function functionTwo(_) end
+			local function functionThree(_) end
 			local eventHandlers = {
 				eventType1 = {
-					phase = "Capture",
+					phase = "Capture" :: Phase?,
 					handler = functionOne,
 				},
 				eventType2 = {
@@ -140,14 +147,14 @@ describe("EventPropagationService", function()
 					},
 				},
 			}
-			expect(eventPropagationService.eventHandlerRegistry).toEqual(expected)
+			expect((eventPropagationService :: any).eventHandlerRegistry).toEqual(expected)
 		end)
 	end)
 	describe("deregisterEventHandlers", function()
 		it("should remove the eventHandlers for a Instance", function()
 			local eventPropagationService = EventPropagationService.new()
 			local instance = Instance.new("Frame")
-			local function handler() end
+			local function handler(_) end
 			local eventHandlers = {
 				eventType = {
 					handler = handler,
@@ -161,7 +168,7 @@ describe("EventPropagationService", function()
 					},
 				},
 			}
-			expect(eventPropagationService.eventHandlerRegistry).toEqual(expectedRegistryWithHandler)
+			expect((eventPropagationService :: any).eventHandlerRegistry).toEqual(expectedRegistryWithHandler)
 			eventPropagationService:deregisterEventHandlers(instance, eventHandlers)
 			local expectedRegistryWithoutHandler = {
 				[instance] = {
@@ -170,12 +177,12 @@ describe("EventPropagationService", function()
 					},
 				},
 			}
-			expect(eventPropagationService.eventHandlerRegistry).toEqual(expectedRegistryWithoutHandler)
+			expect((eventPropagationService :: any).eventHandlerRegistry).toEqual(expectedRegistryWithoutHandler)
 		end)
 		it("should leave unrelated eventHandlers in the registry", function()
 			local eventPropagationService = EventPropagationService.new()
 			local instance = Instance.new("Frame")
-			local function handler() end
+			local function handler(_) end
 			local eventHandlers = {
 				eventType = {
 					handler = handler,
@@ -196,9 +203,9 @@ describe("EventPropagationService", function()
 					},
 				},
 			}
-			expect(eventPropagationService.eventHandlerRegistry).toEqual(expectedRegistryWithHandlers)
+			expect((eventPropagationService :: any).eventHandlerRegistry).toEqual(expectedRegistryWithHandlers)
 			eventPropagationService:deregisterEventHandlers(instance, eventHandlers)
-			local expectedRegistryWithoutHandlers = {
+			local expectedRegistryWithoutHandlers: { [Instance]: any } = {
 				[instance2] = {
 					eventType = {
 						Bubble = handler,
@@ -210,7 +217,7 @@ describe("EventPropagationService", function()
 					},
 				},
 			}
-			expect(eventPropagationService.eventHandlerRegistry).toEqual(expectedRegistryWithoutHandlers)
+			expect((eventPropagationService :: any).eventHandlerRegistry).toEqual(expectedRegistryWithoutHandlers)
 		end)
 	end)
 	describe("registerEventHandler", function()
@@ -231,7 +238,7 @@ describe("EventPropagationService", function()
 					},
 				},
 			}
-			expect(eventPropagationService.eventHandlerRegistry).toEqual(expected)
+			expect((eventPropagationService :: any).eventHandlerRegistry).toEqual(expected)
 		end)
 		it(
 			"should register an eventHandler of a given eventName for an instance in the Bubble phase by default",
@@ -248,10 +255,9 @@ describe("EventPropagationService", function()
 						},
 					},
 				}
-				expect(eventPropagationService.eventHandlerRegistry).toEqual(expected)
+				expect((eventPropagationService :: any).eventHandlerRegistry).toEqual(expected)
 			end
 		)
-
 		it.each({
 			{ phase = "Bubble" },
 			{ phase = "Capture" },
@@ -268,7 +274,7 @@ describe("EventPropagationService", function()
 				local eventNameTwo = "eventNameTwo"
 				local eventMap = {
 					[eventNameOne] = {
-						phase = "Capture",
+						phase = "Capture" :: Phase?,
 						handler = handlerOne,
 					},
 					[eventNameTwo] = {
@@ -279,7 +285,7 @@ describe("EventPropagationService", function()
 				eventPropagationService:registerEventHandlers(instanceTwo, eventMap)
 				local eventNameThree = "eventNameThree"
 				eventPropagationService:registerEventHandler(instanceOne, eventNameThree, handlerOne, args.phase)
-				local expected = {
+				local expected: { [Instance]: { [string]: any } } = {
 					[instanceOne] = {
 						[eventNameOne] = {
 							Capture = handlerOne,
@@ -300,7 +306,7 @@ describe("EventPropagationService", function()
 						},
 					},
 				}
-				expect(eventPropagationService.eventHandlerRegistry).toEqual(expected)
+				expect((eventPropagationService :: any).eventHandlerRegistry).toEqual(expected)
 			end
 		)
 	end)
@@ -324,17 +330,16 @@ describe("EventPropagationService", function()
 						},
 					},
 				}
-				expect(eventPropagationService.eventHandlerRegistry).toEqual(expectedRegistryWithHandler)
+				expect((eventPropagationService :: any).eventHandlerRegistry).toEqual(expectedRegistryWithHandler)
 				eventPropagationService:deregisterEventHandler(instance, eventName, handler, args.phase)
 				local expectedRegistryWithoutHandler = {
 					[instance] = {
 						[eventName] = {},
 					},
 				}
-				expect(eventPropagationService.eventHandlerRegistry).toEqual(expectedRegistryWithoutHandler)
+				expect((eventPropagationService :: any).eventHandlerRegistry).toEqual(expectedRegistryWithoutHandler)
 			end
 		)
-
 		it(
 			"should deregister all eventHandlers of a given eventName for a Instance in the Bubble phase by default",
 			function()
@@ -350,17 +355,16 @@ describe("EventPropagationService", function()
 						},
 					},
 				}
-				expect(eventPropagationService.eventHandlerRegistry).toEqual(expectedRegistryWithHandlers)
+				expect((eventPropagationService :: any).eventHandlerRegistry).toEqual(expectedRegistryWithHandlers)
 				eventPropagationService:deregisterEventHandler(instance, eventName, handler)
 				local expectedRegistryWithoutHandlers = {
 					[instance] = {
 						[eventName] = {},
 					},
 				}
-				expect(eventPropagationService.eventHandlerRegistry).toEqual(expectedRegistryWithoutHandlers)
+				expect((eventPropagationService :: any).eventHandlerRegistry).toEqual(expectedRegistryWithoutHandlers)
 			end
 		)
-
 		it.each({
 			{ phase = "Bubble" },
 			{ phase = "Capture" },
@@ -377,7 +381,7 @@ describe("EventPropagationService", function()
 				local eventNameTwo = "eventNameTwo"
 				local eventMap = {
 					[eventNameOne] = {
-						phase = args.phase,
+						phase = args.phase :: Phase?,
 						handler = handlerOne,
 					},
 					[eventNameTwo] = {
@@ -387,7 +391,7 @@ describe("EventPropagationService", function()
 				eventPropagationService:registerEventHandlers(instanceOne, eventMap)
 				eventPropagationService:registerEventHandlers(instanceTwo, eventMap)
 				eventPropagationService:deregisterEventHandler(instanceOne, eventNameOne, handlerOne, args.phase)
-				local expected = {
+				local expected: { [Instance]: { [string]: any } } = {
 					[instanceOne] = {
 						[eventNameOne] = {},
 						[eventNameTwo] = {
@@ -403,7 +407,7 @@ describe("EventPropagationService", function()
 						},
 					},
 				}
-				expect(eventPropagationService.eventHandlerRegistry).toEqual(expected)
+				expect((eventPropagationService :: any).eventHandlerRegistry).toEqual(expected)
 			end
 		)
 	end)
@@ -419,19 +423,19 @@ describe("EventPropagationService", function()
 			local handler = jest.fn()
 			local eventHandlerMapOne = {
 				[eventName] = {
-					phase = "Bubble",
+					phase = "Bubble" :: Phase?,
 					handler = handler,
 				},
 			}
 			local eventHandlerMapTwo = {
 				[eventName] = {
-					phase = "Capture",
+					phase = "Capture" :: Phase?,
 					handler = handler,
 				},
 			}
 			local eventHandlerMapThree = {
 				[eventName] = {
-					phase = "Target",
+					phase = "Target" :: Phase?,
 					handler = handler,
 				},
 			}
@@ -467,7 +471,7 @@ describe("EventPropagationService", function()
 			local handler = jest.fn()
 			local eventHandlerMapOne = {
 				[eventName] = {
-					phase = "Bubble",
+					phase = "Bubble" :: Phase?,
 					handler = handler,
 				},
 			}
@@ -502,25 +506,25 @@ describe("EventPropagationService", function()
 			local eventName = "eventName"
 			local eventHandlerMapOne = {
 				[eventName] = {
-					phase = "Bubble",
+					phase = "Bubble" :: Phase?,
 					handler = handler,
 				},
 			}
 			local eventHandlerMapTwo = {
 				[eventName] = {
-					phase = "Capture",
+					phase = "Capture" :: Phase?,
 					handler = handler,
 				},
 			}
 			local eventHandlerMapThree = {
 				[eventName] = {
-					phase = "Target",
+					phase = "Target" :: Phase?,
 					handler = handler,
 				},
 			}
 			local eventHandlerMapThreeBubble = {
 				[eventName] = {
-					phase = "Bubble",
+					phase = "Bubble" :: Phase?,
 					handler = handler,
 				},
 			}
@@ -563,19 +567,19 @@ describe("EventPropagationService", function()
 			local eventName = "eventName"
 			local eventHandlerMapOne = {
 				[eventName] = {
-					phase = "Bubble",
+					phase = "Bubble" :: Phase?,
 					handler = handler,
 				},
 			}
 			local eventHandlerMapTwo = {
 				[eventName] = {
-					phase = "Capture",
+					phase = "Capture" :: Phase?,
 					handler = handler,
 				},
 			}
 			local eventHandlerMapThree = {
 				[eventName] = {
-					phase = "Target",
+					phase = "Target" :: Phase?,
 					handler = handler,
 				},
 			}
@@ -611,19 +615,19 @@ describe("EventPropagationService", function()
 			local eventName = "eventName"
 			local eventHandlerMapOne = {
 				[eventName] = {
-					phase = "Bubble",
+					phase = "Bubble" :: Phase?,
 					handler = handler,
 				},
 			}
 			local eventHandlerMapTwo = {
 				[eventName] = {
-					phase = "Capture",
+					phase = "Capture" :: Phase?,
 					handler = handler,
 				},
 			}
 			local eventHandlerMapThree = {
 				[eventName] = {
-					phase = "Capture",
+					phase = "Capture" :: Phase?,
 					handler = handler,
 				},
 			}
@@ -647,7 +651,7 @@ describe("EventPropagationService", function()
 			local eventName = "eventName"
 			local eventHandlerMapOne = {
 				[eventName] = {
-					phase = "Target",
+					phase = "Target" :: Phase?,
 					handler = handler,
 				},
 			}
@@ -674,7 +678,7 @@ describe("EventPropagationService", function()
 				local eventName = "eventName"
 				local eventHandlerMapOne = {
 					[eventName] = {
-						phase = "Target",
+						phase = "Target" :: Phase?,
 						handler = handler,
 					},
 				}
@@ -698,13 +702,13 @@ describe("EventPropagationService", function()
 					local eventName = "eventName"
 					local eventHandlerMapOne = {
 						[eventName] = {
-							phase = "Bubble",
+							phase = "Bubble" :: Phase?,
 							handler = handler,
 						},
 					}
 					local eventHandlerMapTwo = {
 						[eventName] = {
-							phase = "Capture",
+							phase = "Capture" :: Phase?,
 							handler = handler,
 						},
 					}
@@ -789,7 +793,7 @@ describe("improper usage warnings", function()
 		expect(function()
 			eventPropagationService:registerEventHandler(instance, "Foo", handlerTwo, "Bubble")
 		end).toWarnDev({
-			debug.info(handlerOne, "sln") .. ".*" .. debug.info(handlerTwo, "sln"),
+			(debug.info(handlerOne, "s") :: string) .. ".*" .. debug.info(handlerTwo, "s"),
 		})
 	end)
 end)
