@@ -1,5 +1,9 @@
 # Focus Navigation Changelog
 
+## Unreleased
+
+## 1.0.0 (6-5-2023)
+
 * Fix `Event:cancel()` typing ([#19](https://github.com/Roblox/focus-navigation/pull/19))
 * Add input handling module for easier use of engine input events ([#18](https://github.com/Roblox/focus-navigation/pull/18))
 
