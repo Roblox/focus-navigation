@@ -245,6 +245,30 @@ describe("Basic functionality", function()
 			}
 		end
 
+		it("should handle events that have already been processed by the engine", function()
+			local handlerMap = getConfirmHandlerMap()
+
+			focusNavigationService:registerEventHandlers(tree.leftButton, handlerMap)
+			focusNavigationService:registerEventMap(tree.leftButton, {
+				[Enum.KeyCode.ButtonA] = "confirm",
+			})
+
+			focusNavigationService:focusGuiObject(tree.leftButton, true)
+			expect(handlerMap.confirm.handler).toHaveBeenCalledTimes(0)
+
+			mockEngineInterface.simulateInput({
+				KeyCode = Enum.KeyCode.ButtonA,
+				UserInputType = Enum.UserInputType.Gamepad1,
+				UserInputState = Enum.UserInputState.Begin,
+			}, true)
+			expect(handlerMap.confirm.handler).toHaveBeenCalledWith(expect.objectContaining({
+				targetInstance = tree.leftButton,
+				eventData = expect.objectContaining({
+					wasProcessed = true,
+				}),
+			}))
+		end)
+
 		it("should capture events through parents", function()
 			local handlerMap = getConfirmHandlerMap("Capture")
 

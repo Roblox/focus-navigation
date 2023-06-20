@@ -49,7 +49,18 @@ type EventMap = {
 ```
 A mapping of input KeyCodes to event names. When an `EventMap` is registered on a `GuiObject` via `FocusNavigationService:registerEventMap`, the named events will be fired and propagated when the given input is observed.
 
-Data on the [`InputObject`](https://create.roblox.com/docs/reference/engine/classes/InputObject) provided to the input event callback will be copied into the `eventData` field of the `Event` passed to the handler.
+### EventData
+```lua
+type EventData = {
+    Delta: Vector3,
+    KeyCode: Enum.KeyCode,
+    Position: Vector3,
+    UserInputState: Enum.UserInputState,
+    UserInputType: Enum.UserInputType,
+    wasProcessed: boolean?,
+}
+```
+`EventData` is a combination of properties from the input [`InputObject`](https://create.roblox.com/docs/reference/engine/classes/InputObject) provided to the input event callback and other information related to the event. `EventData` is accessed through the `eventData` field of the `Event` passed to an EventHandler.
 
 ## Top-Level API
 
@@ -109,7 +120,7 @@ Deregister a set of event mappings for the given `GuiObject`.
 FocusNavigationService:registerEventHandler(
     guiObject: GuiObject,
     eventName: string,
-    eventHandler: EventHandler,
+    eventHandler: EventHandler<FocusNavigationEventData>,
     phase: EventPhase?
 )
 ```
@@ -120,7 +131,7 @@ Register an individual `EventHandler`. This requires a `GuiObject` (the event wi
 ```lua
 FocusNavigationService:registerEventHandlers(
     guiObject: GuiObject,
-    map: EventHandlerMap
+    map: EventHandlerMap<FocusNavigationEventData>
 )
 ```
 Register multiple `EventHandler`s from an instance using an `EventHandlerMap`.
@@ -130,7 +141,7 @@ Register multiple `EventHandler`s from an instance using an `EventHandlerMap`.
 FocusNavigationService:deRegisterEventHandler(
     guiObject: GuiObject,
     eventName: string,
-    eventHandler: EventHandler,
+    eventHandler: EventHandler<FocusNavigationEventData>,
     phase: EventPhase?
 )
 ```
@@ -140,7 +151,7 @@ De-register a single `EventHandler` from an `GuiObject` based on a phase. If pha
 ```lua
 FocusNavigationService:deRegisterEventHandlers(
     guiObject: GuiObject,
-    map: EventHandlerMap
+    map: EventHandlerMap<FocusNavigationEventData>
 )
 ```
 De-register multiple `EventHandler`s from an instance using an `EventHandlerMap`.

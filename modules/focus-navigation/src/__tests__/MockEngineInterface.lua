@@ -49,7 +49,7 @@ type MockEngineInterface = EngineInterface & {
 		InputChangedDisconnected: SpyFn,
 		InputEndedDisconnected: SpyFn,
 	},
-	simulateInput: (InputEvent) -> (),
+	simulateInput: (InputEvent, boolean?) -> (),
 }
 
 local MockEngineInterface = {}
@@ -88,18 +88,18 @@ function MockEngineInterface.new(): MockEngineInterface
 			InputChangedDisconnected = inputChanged.disconnectSpy,
 			InputEndedDisconnected = inputEnded.disconnectSpy,
 		},
-		simulateInput = function(event: InputEvent)
+		simulateInput = function(event: InputEvent, wasProcessed: boolean?)
 			if event.UserInputState == Enum.UserInputState.Begin then
 				inputBegan.connections:forEach(function(handler)
-					handler(event)
+					handler(event, wasProcessed)
 				end)
 			elseif event.UserInputState == Enum.UserInputState.Change then
 				inputChanged.connections:forEach(function(handler)
-					handler(event)
+					handler(event, wasProcessed)
 				end)
 			elseif event.UserInputState == Enum.UserInputState.End then
 				inputEnded.connections:forEach(function(handler)
-					handler(event)
+					handler(event, wasProcessed)
 				end)
 			end
 		end,
