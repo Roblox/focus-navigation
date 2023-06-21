@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.1.0 (6-20-2023)
+
 * An event having been processed by the engine will no longer prevent event propagation [#23](https://github.com/Roblox/focus-navigation/pull/23)
 * Events propagated through the FocusNavigationService will now have an attribute indicating that the event was processed [#23](https://github.com/Roblox/focus-navigation/pull/23)
 

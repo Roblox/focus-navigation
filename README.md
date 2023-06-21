@@ -18,7 +18,7 @@
 The Focus Navigation library is a work in progress. You can try it out during development with a git dependency. Add the following to the `rotriever.toml` file for your project:
 
 ```toml
-ReactFocusNavigation = "github.com/roblox/focus-navigation@0.2.1"
+ReactFocusNavigation = "github.com/roblox/focus-navigation@1.1.0"
 ```
 
 ## Documentation
@@ -30,6 +30,7 @@ See [ReactFocusNavigation](modules/react-focus-navigation/README.md).
 ### Internal Documentation
 * [FocusNavigation](modules/focus-navigation/README.md).
 * [EventPropagation](modules/event-propagation/README.md).
+* [InputHandlers](modules/input-handlers/README.md)
 
 <!-- Documentation for Focus Navigation is available on [the official documentation website](https://roblox.github.io/focus-navigation). -->
 
