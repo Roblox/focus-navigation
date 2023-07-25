@@ -115,6 +115,22 @@ Inputs from the `UserInputType` enum are simplified to "Keyboard", "Mouse", "Gam
 
 The "None" value is only used when the initial value does not map to one of the other four.
 
+### useLastInputMode
+```lua
+type InputMode = "Focus" | "Cursor" | "None"
+type useLastInputMode = () -> InputMode
+```
+Returns a string representing the kind of input modes that were last processed. It further digests the last input method and maps it to a more specific input mode. 
+| Input Method | Maps To |
+|--|--|
+|Mouse|Cursor|
+|Touch|Cursor|
+|Keyboard|Focus|
+|Gampad|Focus|
+|None|None|
+
+The "None" value is only used when the initial value is unknown.
+
 ### useFocusGuiObject
 ```lua
 type FocusGuiObject = (React.Ref<GuiObject?> | GuiObject | nil) -> ()
