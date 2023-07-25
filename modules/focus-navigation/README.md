@@ -62,6 +62,27 @@ type EventData = {
 ```
 `EventData` is a combination of properties from the input [`InputObject`](https://create.roblox.com/docs/reference/engine/classes/InputObject) provided to the input event callback and other information related to the event. `EventData` is accessed through the `eventData` field of the `Event` passed to an EventHandler.
 
+### ContainerFocusBehavior
+```lua
+type ContainerFocusBehavior = {
+    onDescendantFocusChanged: (GuiObject?) -> (),
+    getTarget: () -> GuiObject?,
+}
+```
+The `ContainerFocusBehavior` type represents a set of gamepad focus behavior rules that will be applied to a container `GuiObject`. The two functions are callbacks triggered by the FocusNavigationService to help redirect selection when a container gains focus.
+
+This is useful for things like declaring a default descendant to be focused when a page gains focus, or tracking the most recently focused descendant and restoring it when returning from a modal.
+
+#### onDescendantFocusChanged
+This function will be called any time focus changes within a given container. It can be used to track focus history within a container so that it can be restored in the future.
+
+If the focus is redirected from its initial target, this callback will only be fired with the _new_ focus target, not the one that was redirected away from.
+
+#### getTarget
+Returns the `GuiObject` that should gain focus when focus moves from outside of the container to into it. This function's return dictates the initial or restored focus state that the `ContainerFocusBehavior` will redirect to.
+
+This can return nil if no focus redirection is desired.
+
 ## Top-Level API
 
 ### FocusNavigationService
@@ -80,6 +101,13 @@ type EngineInterface = {
 }
 ```
 Provides the two possible engine interface modes for the `FocusNavigationService`. These interfaces abstract over engine functionality that the `FocusNavigationService` needs to use under the hood, such as distinguishing between `GuiService.SelectedObject` and `GuiService.SelectedCoreObject`.
+
+### composeContainerFocusBehaviors
+```lua
+FocusNavigation.composeContainerFocusBehaviors(...: ContainerFocusBeahvior) -> ContainerFocusBehavior
+```
+
+Allows multiple [`ContainerFocusBehaviors`](#containerfocusbehavior) to be composed together in the order specified in the arguments. When using the composed behavior to restore focus, the composed behaviors' `getTarget` functions will be called one-by-one, starting with the first one provided, until one of them returns a non-nil value.
 
 ## FocusNavigationService API
 
@@ -136,25 +164,47 @@ FocusNavigationService:registerEventHandlers(
 ```
 Register multiple `EventHandler`s from an instance using an `EventHandlerMap`.
 
-### deRegisterEventHandler
+### deregisterEventHandler
 ```lua
-FocusNavigationService:deRegisterEventHandler(
+FocusNavigationService:deregisterEventHandler(
     guiObject: GuiObject,
     eventName: string,
     eventHandler: EventHandler<FocusNavigationEventData>,
     phase: EventPhase?
 )
 ```
-De-register a single `EventHandler` from an `GuiObject` based on a phase. If phase is not passed in it defaults to `"Bubble"`.
+Deregister a single `EventHandler` from an `GuiObject` based on a phase. If phase is not passed in it defaults to `"Bubble"`.
 
-### deRegisterEventHandlers
+### deregisterEventHandlers
 ```lua
-FocusNavigationService:deRegisterEventHandlers(
+FocusNavigationService:deregisterEventHandlers(
     guiObject: GuiObject,
     map: EventHandlerMap<FocusNavigationEventData>
 )
 ```
-De-register multiple `EventHandler`s from an instance using an `EventHandlerMap`.
+Deregister multiple `EventHandler`s from an instance using an `EventHandlerMap`.
+
+### registerFocusBehavior
+```lua
+FocusNavigationService:registerFocusBehavior(
+    guiObject: GuiObject,
+    containerFocusBehavior: ContainerFocusBehavior,
+)
+```
+Register a `ContainerFocusBehavior` on the given `GuiObject` container. Whenever focus moves from _outside_ of that container to _inside_ of that container, the behavior will trigger and redirect focus if a new target is provided.
+
+Additionally, the `onDescendantFocusChanged` callback on the provided behavior will be fired every time focus changes _to_ a descendant, either from outside the container, `nil` (nothing focused at all), or from another descendant inside the container. It will not be fired when focus moves _out_ of the container.
+
+Only one behavior can be registered on a given container object, so registering a new behavior without deregistering the old one will overwrite the old one (and issue a warning in DEV mode). If multiple behaviors should be combined, use the [`composeContainerFocusBehaviors`](#composecontainerfocusbehaviors) utility to order them appropriately.
+
+### deregisterEventHandler
+```lua
+FocusNavigationService:deregisterFocusBehavior(
+    guiObject: GuiObject,
+    containerFocusBehavior: ContainerFocusBehavior,
+)
+```
+Deregisters a `ContainerFocusBehavior` from a given `GuiObject` container. This means that no additional processing will occur when focus moves into the container, and focus will otherwise behave as dictated by the engine and any relevant `Instance` properties.
 
 ### focusGuiObject
 ```lua

@@ -21,7 +21,7 @@
         "StarterPlayerScripts": {
           "$className": "StarterPlayerScripts",
           "mountApp": {
-            "$path": "scripts/mountApp.client.lua"
+            "$path": "scripts/mountApp.local.lua"
           }
         }
       }

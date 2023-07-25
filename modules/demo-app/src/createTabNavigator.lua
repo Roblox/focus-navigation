@@ -2,6 +2,7 @@ local Packages = script.Parent.Parent
 local React = require(Packages.React)
 local ReactFocusNavigation = require(Packages.ReactFocusNavigation)
 local RoactNavigation = require(Packages.RoactNavigation)
+local InputHandlers = require(Packages.InputHandlers)
 local Array = require(Packages.Collections).Array
 
 local ElementList = require(script.Parent.ElementList)
@@ -43,22 +44,27 @@ local function createTabNavigator(routeConfig)
 			navigation.navigate(key)
 		end, { navigation })
 
-		local nextTab = React.useCallback(function()
-			if tabIndex < #routeConfig then
-				changeTab(tabIndex + 1)
-			end
-		end, { tabIndex, routeConfig })
-		local prevTab = React.useCallback(function()
-			if tabIndex > 1 then
-				changeTab(tabIndex - 1)
-			end
-		end, { tabIndex })
+		local eventHandlerMap = React.useMemo(function()
+			return {
+				NextTab = {
+					handler = InputHandlers.onPress(function()
+						if tabIndex < #routeConfig then
+							changeTab(tabIndex + 1)
+						end
+					end),
+				},
+				PreviousTab = {
+					handler = InputHandlers.onPress(function()
+						if tabIndex > 1 then
+							changeTab(tabIndex - 1)
+						end
+					end),
+				},
+			}
+		end, { tabIndex, routeConfig, changeTab })
 
 		local ref = ReactFocusNavigation.useEventMap(EVENT_MAP)
-		ref = ReactFocusNavigation.useEventHandlerMap({
-			NextTab = { handler = nextTab },
-			PreviousTab = { handler = prevTab },
-		}, ref)
+		ref = ReactFocusNavigation.useEventHandlerMap(eventHandlerMap, ref)
 
 		return React.createElement("Frame", {
 			ref = ref,

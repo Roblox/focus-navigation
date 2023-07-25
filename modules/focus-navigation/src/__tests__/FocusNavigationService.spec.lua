@@ -22,6 +22,8 @@ local EngineInterface = require(script.Parent.Parent.EngineInterface)
 type EventPhase = EventPropagation.EventPhase
 type EventHandler = FocusNavigationService.EventHandler
 
+local types = require(script.Parent.Parent.types)
+
 local CoreGui = game:GetService("CoreGui")
 local PlayerGui = (game:GetService("Players").LocalPlayer :: any).PlayerGui
 
@@ -724,6 +726,259 @@ describeEach({ { phase = "Capture" }, { phase = "Bubble" } })("focus and blur: $
 	end)
 end)
 
+describe("container focus behaviors", function()
+	local tree
+	beforeEach(function()
+		-- This functionality only works with real engine behavior, so override
+		-- the mocked service
+		focusNavigationService = FocusNavigationService.new(EngineInterface.PlayerGui)
+
+		tree = createGuiObjectTree({
+			root = { "ScreenGui", PlayerGui },
+			outerButton1 = { "TextButton", "root", { Size = UDim2.new(0.5, 0, 0, 100) } },
+			outerButton2 = {
+				"TextButton",
+				"root",
+				{ Size = UDim2.new(0.5, 0, 0, 100), Position = UDim2.fromScale(0.5, 0) },
+			},
+			container = { "Frame", "root", { Size = UDim2.fromScale(0.5, 0.5), Position = UDim2.fromOffset(0, 100) } },
+			innerButton1 = { "ImageButton", "container", { SelectionOrder = 1, Size = UDim2.fromScale(0.5, 0.5) } },
+			innerButton2 = {
+				"ImageButton",
+				"container",
+				{ SelectionOrder = 2, Size = UDim2.fromScale(0.5, 0.5), Position = UDim2.fromScale(0.5, 0) },
+			},
+		})
+	end)
+	afterEach(function()
+		tree.root:Destroy()
+	end)
+
+	local redirectTo2: types.ContainerFocusBehavior = {
+		getTarget = function()
+			return tree.innerButton2
+		end,
+	}
+
+	local function behaviorWithFocusChanged(fn): types.ContainerFocusBehavior
+		return {
+			onDescendantFocusChanged = fn,
+			getTarget = function()
+				return nil
+			end,
+		}
+	end
+
+	it("should allow registering and deregistering of focus behaviors", function()
+		local spy, spyFn = jest.fn()
+		local behavior = { getTarget = spyFn }
+
+		GuiService.SelectedObject = nil
+		focusNavigationService:registerFocusBehavior(tree.container, behavior)
+
+		GuiService.SelectedObject = tree.innerButton1
+		waitForEvents()
+		expect(spy).toHaveBeenCalledTimes(1)
+
+		GuiService.SelectedObject = nil
+		focusNavigationService:deregisterFocusBehavior(tree.container, behavior)
+
+		GuiService.SelectedObject = tree.innerButton1
+		waitForEvents()
+		expect(spy).toHaveBeenCalledTimes(1)
+	end)
+
+	it("should clean up focus behaviors on teardown", function()
+		local spy, spyFn = jest.fn()
+		local behavior = { getTarget = spyFn }
+
+		GuiService.SelectedObject = nil
+		focusNavigationService:registerFocusBehavior(tree.container, behavior)
+
+		GuiService.SelectedObject = tree.innerButton1
+		waitForEvents()
+		expect(spy).toHaveBeenCalledTimes(1)
+
+		GuiService.SelectedObject = nil
+		focusNavigationService:teardown()
+
+		GuiService.SelectedObject = tree.innerButton1
+		waitForEvents()
+		expect(spy).toHaveBeenCalledTimes(1)
+	end)
+
+	describe("should redirect focus", function()
+		it("when focus is gained from outside container", function()
+			GuiService.SelectedObject = tree.outerButton1
+
+			focusNavigationService:registerFocusBehavior(tree.container, redirectTo2)
+
+			GuiService.SelectedObject = tree.innerButton1
+			waitForEvents()
+			expect(GuiService.SelectedObject).toBe(tree.innerButton2)
+		end)
+
+		it("when focus is captured from nil", function()
+			GuiService.SelectedObject = nil
+
+			focusNavigationService:registerFocusBehavior(tree.container, redirectTo2)
+
+			GuiService.SelectedObject = tree.innerButton1
+			waitForEvents()
+			expect(GuiService.SelectedObject).toBe(tree.innerButton2)
+		end)
+	end)
+
+	describe("should not redirect focus", function()
+		it("when focus moves within the container", function()
+			focusNavigationService:registerFocusBehavior(tree.container, redirectTo2)
+
+			GuiService.SelectedObject = tree.innerButton2
+			waitForEvents()
+			expect(GuiService.SelectedObject).toBe(tree.innerButton2)
+
+			GuiService.SelectedObject = tree.innerButton1
+			waitForEvents()
+			expect(GuiService.SelectedObject).toBe(tree.innerButton1)
+		end)
+
+		it("when focus moves out of the container", function()
+			focusNavigationService:registerFocusBehavior(tree.container, redirectTo2)
+
+			GuiService.SelectedObject = tree.innerButton2
+			waitForEvents()
+			expect(GuiService.SelectedObject).toBe(tree.innerButton2)
+
+			GuiService.SelectedObject = tree.outerButton1
+			waitForEvents()
+			expect(GuiService.SelectedObject).toBe(tree.outerButton1)
+		end)
+
+		it("when focus moves between elements oustide of the container", function()
+			focusNavigationService:registerFocusBehavior(tree.container, redirectTo2)
+
+			GuiService.SelectedObject = tree.outerButton1
+			waitForEvents()
+			expect(GuiService.SelectedObject).toBe(tree.outerButton1)
+
+			GuiService.SelectedObject = tree.outerButton2
+			waitForEvents()
+			expect(GuiService.SelectedObject).toBe(tree.outerButton2)
+		end)
+	end)
+
+	describe("should trigger onDescendantFocusChanged", function()
+		it("when focus is gained from outside container", function()
+			local spy, spyFn = jest.fn()
+			local behavior = behaviorWithFocusChanged(spyFn)
+
+			GuiService.SelectedObject = tree.outerButton1
+			focusNavigationService:registerFocusBehavior(tree.container, behavior)
+
+			GuiService.SelectedObject = tree.innerButton1
+			waitForEvents()
+			expect(spy).toHaveBeenCalledTimes(1)
+			expect(spy).toHaveBeenCalledWith(tree.innerButton1)
+		end)
+
+		it("when focus is captured from nil", function()
+			local spy, spyFn = jest.fn()
+			local behavior = behaviorWithFocusChanged(spyFn)
+
+			GuiService.SelectedObject = nil
+			focusNavigationService:registerFocusBehavior(tree.container, behavior)
+
+			GuiService.SelectedObject = tree.innerButton1
+			waitForEvents()
+			expect(spy).toHaveBeenCalledTimes(1)
+			expect(spy).toHaveBeenCalledWith(tree.innerButton1)
+		end)
+
+		it("when focus between elements inside of the container", function()
+			local spy, spyFn = jest.fn()
+			local behavior = behaviorWithFocusChanged(spyFn)
+
+			GuiService.SelectedObject = tree.innerButton1
+			focusNavigationService:registerFocusBehavior(tree.container, behavior)
+
+			GuiService.SelectedObject = tree.innerButton2
+			waitForEvents()
+			expect(spy).toHaveBeenCalledTimes(1)
+			expect(spy).toHaveBeenCalledWith(tree.innerButton2)
+		end)
+
+		it("with the new value when focus is redirected", function()
+			local spy, spyFn = jest.fn()
+			local behavior = behaviorWithFocusChanged(spyFn)
+			behavior.getTarget = function()
+				return tree.innerButton2
+			end
+
+			GuiService.SelectedObject = nil
+			focusNavigationService:registerFocusBehavior(tree.container, behavior)
+
+			GuiService.SelectedObject = tree.innerButton1
+			-- wait for initial focus
+			waitForEvents()
+			-- wait for redirect to be observed
+			waitForEvents()
+			expect(spy).toHaveBeenCalledTimes(1)
+			expect(spy).toHaveBeenCalledWith(tree.innerButton2)
+		end)
+	end)
+
+	describe("should not trigger onDescendantFocusChanged", function()
+		it("when focus moves outside the container", function()
+			local spy, spyFn = jest.fn()
+			local behavior = behaviorWithFocusChanged(spyFn)
+
+			GuiService.SelectedObject = tree.innerButton1
+			focusNavigationService:registerFocusBehavior(tree.container, behavior)
+
+			GuiService.SelectedObject = tree.outerButton1
+			-- wait for initial focus
+			waitForEvents()
+			-- wait in case there was an erroneous redirect
+			waitForEvents()
+			expect(spy).toHaveBeenCalledTimes(0)
+		end)
+
+		it("with a focus target that was redirected away from", function()
+			local spy, spyFn = jest.fn()
+			local behavior = behaviorWithFocusChanged(spyFn)
+			behavior.getTarget = function()
+				return tree.innerButton2
+			end
+
+			GuiService.SelectedObject = nil
+			focusNavigationService:registerFocusBehavior(tree.container, behavior)
+
+			GuiService.SelectedObject = tree.innerButton1
+			-- wait for initial focus
+			waitForEvents()
+			-- wait for redirect to be observed
+			waitForEvents()
+			expect(spy).toHaveBeenCalledTimes(1)
+			expect(spy).never.toHaveBeenCalledWith(tree.innerButton1)
+		end)
+
+		it("when focus is set to nil", function()
+			local spy, spyFn = jest.fn()
+			local behavior = behaviorWithFocusChanged(spyFn)
+
+			GuiService.SelectedObject = tree.innerButton1
+			focusNavigationService:registerFocusBehavior(tree.container, behavior)
+
+			GuiService.SelectedObject = nil
+			-- wait for initial focus
+			waitForEvents()
+			-- wait in case there was an erroneous redirect
+			waitForEvents()
+			expect(spy).toHaveBeenCalledTimes(0)
+		end)
+	end)
+end)
+
 describe("observable properties", function()
 	type NoopHandler = { handler: (any) -> (), phase: nil }
 
@@ -1098,5 +1353,66 @@ describe("improper usage warnings", function()
 		end).toWarnDev({
 			"Cannot deregister non%-matching event input Enum%.KeyCode%.ButtonB:.*Bar.*Foo",
 		})
+	end)
+
+	describe("Focus Behavior", function()
+		local behaviorA = (
+			setmetatable({
+				onDescendantFocusChanged = nil,
+				getTarget = function()
+					return nil
+				end,
+			}, {
+				__tostring = function()
+					return "BehaviorA"
+				end,
+			}) :: any
+		) :: types.ContainerFocusBehavior
+		local behaviorB = (
+			setmetatable({
+				onDescendantFocusChanged = nil,
+				getTarget = function()
+					return nil
+				end,
+			}, {
+				__tostring = function()
+					return "BehaviorB"
+				end,
+			}) :: any
+		) :: types.ContainerFocusBehavior
+
+		it("warns on overwriting a registered focus behavior", function()
+			local instance = Instance.new("Frame")
+
+			focusNavigationService:registerFocusBehavior(instance, behaviorA)
+
+			expect(function()
+				focusNavigationService:registerFocusBehavior(instance, behaviorB)
+			end).toWarnDev({
+				"New focus behavior will replace existing registered focus behavior:.*BehaviorB.*BehaviorA",
+			})
+		end)
+
+		it("warns on deregistering an un registered focus behavior", function()
+			local instance = Instance.new("Frame")
+
+			expect(function()
+				focusNavigationService:deregisterFocusBehavior(instance, behaviorA)
+			end).toWarnDev({
+				"Cannot deregister an unregistered focus behavior:.*BehaviorA",
+			})
+		end)
+
+		it("warns on deregistering a focus behavior that does not match the registered one", function()
+			local instance = Instance.new("Frame")
+
+			focusNavigationService:registerFocusBehavior(instance, behaviorA)
+
+			expect(function()
+				focusNavigationService:deregisterFocusBehavior(instance, behaviorB)
+			end).toWarnDev({
+				"Cannot deregister non%-matching focus behavior:.*BehaviorB.*BehaviorA",
+			})
+		end)
 	end)
 end)

@@ -11,6 +11,7 @@
             "EnableLoadModule=true",
             "EnableSignalBehavior=true",
             "DebugForceDeferredSignalBehavior=true",
+            "MaxDeferReentrancyDepth=120"
         ]
     },
     "lua": {

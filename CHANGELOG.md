@@ -2,10 +2,12 @@
 
 ## Unreleased
 
+* Add the `registerFocusBehavior` and `deregisterFocusBehavior` API members to the `FocusNavigationService` ([#25](https://github.com/Roblox/focus-navigation/pull/25))
+
 ## 1.1.0 (6-20-2023)
 
-* An event having been processed by the engine will no longer prevent event propagation [#23](https://github.com/Roblox/focus-navigation/pull/23)
-* Events propagated through the FocusNavigationService will now have an attribute indicating that the event was processed [#23](https://github.com/Roblox/focus-navigation/pull/23)
+* An event having been processed by the engine will no longer prevent event propagation ([#23](https://github.com/Roblox/focus-navigation/pull/23))
+* Events propagated through the FocusNavigationService will now have an attribute indicating that the event was processed ([#23](https://github.com/Roblox/focus-navigation/pull/23))
 
 
 ## 1.0.0 (6-5-2023)

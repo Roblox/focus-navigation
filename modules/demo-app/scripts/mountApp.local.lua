@@ -1,4 +1,3 @@
--- _G.__DEV__ = true
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 
