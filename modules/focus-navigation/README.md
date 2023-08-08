@@ -78,10 +78,8 @@ This function will be called any time focus changes within a given container. It
 
 If the focus is redirected from its initial target, this callback will only be fired with the _new_ focus target, not the one that was redirected away from.
 
-#### getTarget
-Returns the `GuiObject` that should gain focus when focus moves from outside of the container to into it. This function's return dictates the initial or restored focus state that the `ContainerFocusBehavior` will redirect to.
-
-This can return nil if no focus redirection is desired.
+#### getTargets
+Returns an array of `GuiObject` candidates that should gain focus when focus moves from _outside_ of the container to _into_ it. This function's return dictates the initial or restored focus state that the `ContainerFocusBehavior` will redirect to. The `FocusNavigationService` will attempt to validate each member in the provided order, using [`isValidFocusTarget`](#isvalidfocustarget), and redirect focus to the first valid one. If the list is empty or no members are valid, focus will not be redirected.
 
 ## Top-Level API
 
@@ -102,12 +100,14 @@ type EngineInterface = {
 ```
 Provides the two possible engine interface modes for the `FocusNavigationService`. These interfaces abstract over engine functionality that the `FocusNavigationService` needs to use under the hood, such as distinguishing between `GuiService.SelectedObject` and `GuiService.SelectedCoreObject`.
 
-### composeContainerFocusBehaviors
+### isValidFocusTarget
 ```lua
-FocusNavigation.composeContainerFocusBehaviors(...: ContainerFocusBeahvior) -> ContainerFocusBehavior
+FocusNavigation.isValidFocusTarget(target: Instance?) -> (boolean, string?)
 ```
+Returns a boolean representing whether or not the target is capable of receiving focus via Roblox engine selection (i.e. "Can GuiService.Selected(Core)Object be set to this value?").
 
-Allows multiple [`ContainerFocusBehaviors`](#containerfocusbehavior) to be composed together in the order specified in the arguments. When using the composed behavior to restore focus, the composed behaviors' `getTarget` functions will be called one-by-one, starting with the first one provided, until one of them returns a non-nil value.
+If the function returns `false`, the second return value will contain an error string explaining why the `target` was not a valid focus target. This can be ignored or escalated as a warning or error message if needed.
+
 
 ## FocusNavigationService API
 
@@ -195,7 +195,7 @@ Register a `ContainerFocusBehavior` on the given `GuiObject` container. Whenever
 
 Additionally, the `onDescendantFocusChanged` callback on the provided behavior will be fired every time focus changes _to_ a descendant, either from outside the container, `nil` (nothing focused at all), or from another descendant inside the container. It will not be fired when focus moves _out_ of the container.
 
-Only one behavior can be registered on a given container object, so registering a new behavior without deregistering the old one will overwrite the old one (and issue a warning in DEV mode). If multiple behaviors should be combined, use the [`composeContainerFocusBehaviors`](#composecontainerfocusbehaviors) utility to order them appropriately.
+Only one behavior can be registered on a given container object, so registering a new behavior without deregistering the old one will overwrite the old one (and issue a warning in DEV mode). If multiple behaviors should be combined, use the [`composeFocusBehaviors`](#composefocusbehaviors) utility to order them appropriately.
 
 ### deregisterEventHandler
 ```lua

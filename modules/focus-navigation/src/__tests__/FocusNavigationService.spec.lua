@@ -729,8 +729,8 @@ end)
 describe("container focus behaviors", function()
 	local tree
 	beforeEach(function()
-		-- This functionality only works with real engine behavior, so override
-		-- the mocked service
+		-- This functionality is non-trivial to mock, so override the mocked
+		-- service defined in the outer `beforeEach` with a real EngineInterface
 		focusNavigationService = FocusNavigationService.new(EngineInterface.PlayerGui)
 
 		tree = createGuiObjectTree({
@@ -755,23 +755,25 @@ describe("container focus behaviors", function()
 	end)
 
 	local redirectTo2: types.ContainerFocusBehavior = {
-		getTarget = function()
-			return tree.innerButton2
+		getTargets = function()
+			return { tree.innerButton2 }
 		end,
 	}
 
 	local function behaviorWithFocusChanged(fn): types.ContainerFocusBehavior
 		return {
 			onDescendantFocusChanged = fn,
-			getTarget = function()
-				return nil
+			getTargets = function()
+				return {}
 			end,
 		}
 	end
 
 	it("should allow registering and deregistering of focus behaviors", function()
-		local spy, spyFn = jest.fn()
-		local behavior = { getTarget = spyFn }
+		local spy, spyFn = jest.fn(function()
+			return {}
+		end)
+		local behavior = { getTargets = spyFn }
 
 		GuiService.SelectedObject = nil
 		focusNavigationService:registerFocusBehavior(tree.container, behavior)
@@ -789,8 +791,10 @@ describe("container focus behaviors", function()
 	end)
 
 	it("should clean up focus behaviors on teardown", function()
-		local spy, spyFn = jest.fn()
-		local behavior = { getTarget = spyFn }
+		local spy, spyFn = jest.fn(function()
+			return {}
+		end)
+		local behavior = { getTargets = spyFn }
 
 		GuiService.SelectedObject = nil
 		focusNavigationService:registerFocusBehavior(tree.container, behavior)
@@ -910,8 +914,8 @@ describe("container focus behaviors", function()
 		it("with the new value when focus is redirected", function()
 			local spy, spyFn = jest.fn()
 			local behavior = behaviorWithFocusChanged(spyFn)
-			behavior.getTarget = function()
-				return tree.innerButton2
+			behavior.getTargets = function()
+				return { tree.innerButton2 }
 			end
 
 			GuiService.SelectedObject = nil
@@ -946,8 +950,8 @@ describe("container focus behaviors", function()
 		it("with a focus target that was redirected away from", function()
 			local spy, spyFn = jest.fn()
 			local behavior = behaviorWithFocusChanged(spyFn)
-			behavior.getTarget = function()
-				return tree.innerButton2
+			behavior.getTargets = function()
+				return { tree.innerButton2 }
 			end
 
 			GuiService.SelectedObject = nil

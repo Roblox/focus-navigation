@@ -1,6 +1,7 @@
 local Packages = script.Parent.Parent
 local React = require(Packages.React)
 local Array = require(Packages.Collections).Array
+local ReactFocusNavigation = require(Packages.ReactFocusNavigation)
 
 local GameSort = require(script.Parent.GameSort)
 local CaptureFocus = require(script.Parent.CaptureFocus)
@@ -8,6 +9,8 @@ local CaptureFocus = require(script.Parent.CaptureFocus)
 local sortsData = require(script.Parent.data.sorts)
 
 local function HomePage(props)
+	local containerRef = ReactFocusNavigation.useMostRecentFocusBehavior()
+
 	local sorts = Array.map(sortsData, function(item, i)
 		return React.createElement(GameSort, {
 			navigateToGameDetails = function(title)
@@ -24,6 +27,7 @@ local function HomePage(props)
 	return React.createElement(
 		"ScrollingFrame",
 		{
+			ref = containerRef,
 			Size = UDim2.fromScale(1, 1),
 			BackgroundColor3 = Color3.fromHex("B4E4E0"),
 			AutomaticCanvasSize = Enum.AutomaticSize.XY,

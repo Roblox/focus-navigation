@@ -1,5 +1,8 @@
 # Focus Navigation Changelog
 
+# Unreleased
+* Add `isValidFocusTarget` utility, add focus behavior hooks `useContainerFocusBehavior`, `useDefaultFocusBehavior`, `useMostRecentFocusBehavior`, `useMostRecentOrDefaultFocusBehavior` ([#29](https://github.com/Roblox/focus-navigation/pull/29)) 
+
 ## 1.2.0 (7-25-2023)
 * Add `useLastInputMode` hook ([#27](https://github.com/Roblox/focus-navigation/pull/27))
 * Add the `registerFocusBehavior` and `deregisterFocusBehavior` API members to the `FocusNavigationService` ([#25](https://github.com/Roblox/focus-navigation/pull/25))

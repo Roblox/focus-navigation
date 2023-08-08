@@ -6,13 +6,13 @@ local it = JestGlobals.it
 local expect = JestGlobals.expect
 local jest = JestGlobals.jest
 
-local composeContainerFocusBehaviors = require(script.Parent.Parent.composeContainerFocusBehaviors)
+local composeFocusBehaviors = require(script.Parent.Parent.composeFocusBehaviors)
 
 local function targetBehavior(target: GuiObject?)
 	return {
 		onDescendantFocusChanged = nil,
-		getTarget = function()
-			return target
+		getTargets = function()
+			return if target then { target } else {}
 		end,
 	}
 end
@@ -20,8 +20,8 @@ end
 local function focusChangedBehavior(fn)
 	return {
 		onDescendantFocusChanged = fn,
-		getTarget = function()
-			return nil
+		getTargets = function()
+			return {}
 		end,
 	}
 end
@@ -37,7 +37,7 @@ it("calls all internal behaviors in sequence", function()
 	local behavior3 = focusChangedBehavior(function(value)
 		focusChanged(3, value)
 	end)
-	local composed = composeContainerFocusBehaviors(behavior1, behavior2, behavior3)
+	local composed = composeFocusBehaviors(behavior1, behavior2, behavior3)
 	local newFocus: GuiObject = Instance.new("TextButton")
 
 	assert(composed.onDescendantFocusChanged, "Expected onDescendantFocusChanged to be implemented")
@@ -47,7 +47,7 @@ it("calls all internal behaviors in sequence", function()
 
 	focusChanged.mockClear()
 
-	local composed2 = composeContainerFocusBehaviors(behavior3, behavior2, behavior1)
+	local composed2 = composeFocusBehaviors(behavior3, behavior2, behavior1)
 	newFocus = Instance.new("ImageButton")
 	assert(composed2.onDescendantFocusChanged, "Expected onDescendantFocusChanged to be implemented")
 	composed2.onDescendantFocusChanged(newFocus)
@@ -59,7 +59,7 @@ it("accepts behaviors with nil onDescendantFocusChanged values", function()
 	local target1, target2 = Instance.new("TextButton"), Instance.new("ImageButton")
 	local behavior1, behavior2 = targetBehavior(target1), targetBehavior(target2)
 
-	local composed = composeContainerFocusBehaviors(behavior1, behavior2)
+	local composed = composeFocusBehaviors(behavior1, behavior2)
 	local newFocus: GuiObject = Instance.new("TextButton")
 
 	expect(composed.onDescendantFocusChanged).toBeDefined()
@@ -73,9 +73,9 @@ it("returns the first valid target starting from the beginning of the list", fun
 	local target1, target2 = Instance.new("TextButton"), Instance.new("ImageButton")
 	local behavior1, behavior2 = targetBehavior(target1), targetBehavior(target2)
 
-	local compose1then2 = composeContainerFocusBehaviors(behavior1, behavior2)
-	expect(compose1then2.getTarget()).toBe(target1)
+	local compose1then2 = composeFocusBehaviors(behavior1, behavior2)
+	expect(compose1then2.getTargets()).toEqual({ target1, target2 } :: { GuiObject })
 
-	local compose2then1 = composeContainerFocusBehaviors(behavior2, behavior1)
-	expect(compose2then1.getTarget()).toBe(target2)
+	local compose2then1 = composeFocusBehaviors(behavior2, behavior1)
+	expect(compose2then1.getTargets()).toEqual({ target2, target1 } :: { GuiObject })
 end)

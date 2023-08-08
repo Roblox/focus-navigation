@@ -139,3 +139,33 @@ type useFocusGuiObject = () -> FocusGuiObject
 Returns a function that can be used for imperatively capturing focus. This is useful for adapting focus management to other complexities of application UI, including animations and app navigation transitions. Call this function with a `GuiObject` or an object ref to move focus to the target or one of its `Selectable` descendants.
 
 You can also call this function with `nil` to unfocus the UI entirely. You may want to do this in response to inputs from non-gamepad peripherals.
+
+### useContainerFocusBehavior
+```lua
+type useContainerFocusBehavior = (behavior: ContainerFocusBehavior, innerRef: React.Ref?) -> React.Ref
+```
+A hook responsible for providing the desired behavior for redirecting focus within a container. There are two general scenarios in which the assigned focus behavior will redirect focus:
+* The container to which it is bound gains focus for the first time
+* The container to which it is bound regains focus after navigating away and back
+
+In these cases, a “container” typically refers to a screen within a RoactNavigation navigator, but could also be applied to a group of related buttons, an overlay, or any other group of elements that interact with focus.
+
+### useDefaultFocusBehavior
+```lua
+type useDefaultFocusBehavior = () -> (defaultRef: React.Ref<Instance?>, containerRef: React.Ref<Instance?>)
+```
+Returns a `defaultRef` value to be assigned to the default focus target and a containerRef to be assigned to the container that will redirect focus to the default.
+
+### useMostRecentFocusBehavior
+```lua
+type useMostRecentFocusBehavior = () -> containerRef: React.Ref<Instance?>
+```
+Returns a `containerRef` to be assigned to the container that will redirect focus to its last focused descendant.
+
+### useMostRecentOrDefaultFocusBehavior
+```lua
+type useMostRecentOrDefaultFocusBehavior = () -> (defaultRef: React.Ref<Instance?>, containerRef: React.Ref<Instance?>)
+```
+Composes the above two behaviors, such that previous selection is restored with an assigned default as a fallback. Returns a `defaultRef` value to be assigned to the default focus target and a containerRef to be assigned to the container that will redirect focus.
+
+If a valid last-focused descendant exists when refocusing, it will be redirected to, using [`isValidFocusTarget`](../focus-navigation/README.md#isvalidfocustarget) to determine validity. If no valid targets are found, the default will be used.

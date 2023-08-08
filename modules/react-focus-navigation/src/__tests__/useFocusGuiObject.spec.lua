@@ -22,7 +22,7 @@ local cleanup = ReactTestingLibrary.cleanup
 local Collections = require(Packages.Dev.Collections)
 local Object = Collections.Object
 
-local waitForEvents = require(script.Parent.waitForEvents)
+local waitForEvents = require(Packages.Utils).waitForEvents
 
 local FocusNavigationContext = require(script.Parent.Parent.FocusNavigationContext)
 local useFocusGuiObject = require(script.Parent.Parent.useFocusGuiObject)
