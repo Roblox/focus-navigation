@@ -1,6 +1,6 @@
 # Focus Navigation Changelog
 
-# Unreleased
+## 1.3.0 (9-27-2023)
 * Add `isValidFocusTarget` utility, add focus behavior hooks `useContainerFocusBehavior`, `useDefaultFocusBehavior`, `useMostRecentFocusBehavior`, `useMostRecentOrDefaultFocusBehavior` ([#29](https://github.com/Roblox/focus-navigation/pull/29)) 
 
 ## 1.2.0 (7-25-2023)

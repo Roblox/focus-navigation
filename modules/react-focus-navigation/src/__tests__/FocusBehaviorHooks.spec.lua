@@ -111,6 +111,17 @@ local function moveFocus(target)
 end
 
 describe("useDefaultFocusBehavior", function()
+	it("accepts and wraps an existing ref", function()
+		local innerRef = React.createRef()
+		local function HooksContainer()
+			local defaultRef, containerRef = useDefaultFocusBehavior(innerRef)
+			return React.createElement(TestUI, { containerRef = containerRef, secondButtonRef = defaultRef })
+		end
+
+		renderWithFocusNav(React.createElement(HooksContainer))
+		expect(innerRef.current).toEqual(expect.any("Instance"))
+	end)
+
 	it("overrides the engine default when used as a hook", function()
 		local function HooksContainer()
 			local defaultRef, containerRef = useDefaultFocusBehavior()
@@ -161,6 +172,17 @@ describe("useDefaultFocusBehavior", function()
 end)
 
 describe("useMostRecentFocusBehavior", function()
+	it("accepts and wraps an existing ref", function()
+		local innerRef = React.createRef()
+		local function HooksContainer()
+			local containerRef = useMostRecentFocusBehavior(innerRef)
+			return React.createElement(TestUI, { containerRef = containerRef })
+		end
+
+		renderWithFocusNav(React.createElement(HooksContainer))
+		expect(innerRef.current).toEqual(expect.any("Instance"))
+	end)
+
 	it("lets engine defaults dictate initial selection", function()
 		local function HooksContainer()
 			local containerRef = useMostRecentFocusBehavior()
@@ -200,6 +222,17 @@ describe("useMostRecentFocusBehavior", function()
 end)
 
 describe("useMostRecentOrDefaultFocusBehavior", function()
+	it("accepts and wraps an existing ref", function()
+		local innerRef = React.createRef()
+		local function HooksContainer()
+			local defaultRef, containerRef = useMostRecentOrDefaultFocusBehavior(innerRef)
+			return React.createElement(TestUI, { containerRef = containerRef, secondButtonRef = defaultRef })
+		end
+
+		renderWithFocusNav(React.createElement(HooksContainer))
+		expect(innerRef.current).toEqual(expect.any("Instance"))
+	end)
+
 	it("overrides the engine default", function()
 		local function HooksContainer()
 			local defaultRef, containerRef = useMostRecentOrDefaultFocusBehavior()
