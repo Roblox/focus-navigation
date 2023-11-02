@@ -133,7 +133,7 @@ The "None" value is only used when the initial value is unknown.
 
 ### useFocusGuiObject
 ```lua
-type FocusGuiObject = (React.Ref<GuiObject?> | GuiObject | nil) -> ()
+type FocusGuiObject = (GuiObject | nil) -> ()
 type useFocusGuiObject = () -> FocusGuiObject
 ```
 Returns a function that can be used for imperatively capturing focus. This is useful for adapting focus management to other complexities of application UI, including animations and app navigation transitions. Call this function with a `GuiObject` or an object ref to move focus to the target or one of its `Selectable` descendants.
