@@ -1,21 +1,5 @@
 # FocusBehaviors
 
-## Built-in FocusBehaviors
+Defines focus management behaviors that can be attached to containers via the FocusNavigationService. Containers will typically be pages or modals, and focus behaviors will trigger whenever the container gains focus (in other words: when focus moves from outside the container's hierarchy to inside the container's hierarchy).
 
-### default
-```
-FocusBehaviors.default(ref: ObjectRef) -> ContainerFocusBehavior
-```
-
-Creates a behavior that always focuses the provides default descendant.
-
-### mostRecent
-
-### mostRecentOrDefault
-
-## composeFocusBehaviors
-```lua
-FocusBehaviors.composeFocusBehaviors(...: ContainerFocusBehavior) -> ContainerFocusBehavior
-```
-
-Allows multiple [`ContainerFocusBehaviors`](../focus-navigation/README.md#containerfocusbehavior) to be composed together in the order specified in the arguments. When using the composed behavior to restore focus, the composed behaviors' [`getTargets`](#gettargets) functions will be called one-by-one, starting with the first one provided, and aggregated into a new list of focus target candidates.
+[View Documentation](https://roblox.github.io/focus-navigation/api-reference/focus-behaviors/)

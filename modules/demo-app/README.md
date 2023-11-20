@@ -1,6 +1,6 @@
 # Demo App
 
-A small skeleton app that demonstrates a few key features of the `ReactFocusNavigation` library.
+A small skeleton app that demonstrates a few key features of the `ReactFocusNavigation` library. It has not yet been updated to make use of the `InputHandlers` and `FocusBehavior` libraries.
 
 ## How to Run
 
@@ -33,4 +33,4 @@ The following pieces of core functionality are not implemented and are still not
 * Input behaviors beyond simple presses (e.g. press-and-hold)
 * Dropping and restoring focus when input type changes
 
-Some of these may be addressed as we iron out the feature set for the library, and others may remain the responsibility of the downstream application.
+Some of these have been addressed as we've iron out the feature set for the library, and others may remain the responsibility of downstream applications.
