@@ -100,6 +100,7 @@ Returns a string representing the kind of input events that were last processed.
 The "last input method" concept is a layer of reduction over the `UserInputService:GetLastInputType()` function, which returns an [`Enum.UserInputType`](https://create.roblox.com/docs/reference/engine/enums/UserInputType).
 
 Inputs from the `UserInputType` enum are simplified to "Keyboard", "Mouse", "Gamepad", and "Touch" as follows:
+
 | Enum Member | Maps To | Notes |
 |--|--|--|
 |MouseButton1..3|Mouse||
@@ -123,6 +124,7 @@ type InputMode = "Focus" | "Cursor" | "None"
 function useLastInputMode(): InputMode
 ```
 Returns a string representing the kind of input modes that were last processed. It further digests the last input method and maps it to a more specific input mode. 
+
 | Input Method | Maps To |
 |--|--|
 |Mouse|Cursor|
