@@ -5,7 +5,7 @@ local JestGlobals = require(script.Parent.ReactFocusNavigation.Dev.JestGlobals)
 local beforeAll = JestGlobals.beforeAll
 local expect = JestGlobals.expect
 
-local Utils = require(Packages.Utils)
+local Utils = require(Packages.FocusNavigationUtils)
 
 local function toWarnDev(_, callback: () -> (any), expected: string | { string })
 	if _G.__DEV__ then

@@ -1,5 +1,5 @@
 [package]
-name = "Utils"
+name = "FocusNavigationUtils"
 authors = ["Roblox"]
 version = { workspace = true }
 content_root = "src"

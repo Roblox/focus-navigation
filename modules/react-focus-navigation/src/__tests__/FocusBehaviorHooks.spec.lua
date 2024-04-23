@@ -20,7 +20,8 @@ local cleanup = ReactTestingLibrary.cleanup
 local FocusNavigationContext = require(script.Parent.Parent.FocusNavigationContext)
 local FocusBehaviorHooks = require(script.Parent.Parent.FocusBehaviorHooks)
 
-local waitForEvents = require(Packages.Utils).waitForEvents
+local Utils = require(Packages.FocusNavigationUtils)
+local waitForEvents = Utils.waitForEvents
 
 local useDefaultFocusBehavior = FocusBehaviorHooks.useDefaultFocusBehavior
 local useMostRecentFocusBehavior = FocusBehaviorHooks.useMostRecentFocusBehavior

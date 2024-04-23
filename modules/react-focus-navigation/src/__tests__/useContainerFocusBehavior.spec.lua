@@ -16,7 +16,8 @@ local ReactTestingLibrary = require(Packages.Dev.ReactTestingLibrary)
 local render = ReactTestingLibrary.render
 local cleanup = ReactTestingLibrary.cleanup
 
-local waitForEvents = require(Packages.Utils).waitForEvents
+local Utils = require(Packages.FocusNavigationUtils)
+local waitForEvents = Utils.waitForEvents
 
 local FocusNavigationContext = require(script.Parent.Parent.FocusNavigationContext)
 local useContainerFocusBehavior = require(script.Parent.Parent.useContainerFocusBehavior)

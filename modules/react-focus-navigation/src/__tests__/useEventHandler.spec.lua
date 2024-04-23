@@ -22,7 +22,8 @@ local GamePad = Rhodium.VirtualInput.GamePad
 local Collections = require(Packages.Dev.Collections)
 local Object = Collections.Object
 
-local waitForEvents = require(Packages.Utils).waitForEvents
+local Utils = require(Packages.FocusNavigationUtils)
+local waitForEvents = Utils.waitForEvents
 
 local FocusNavigationContext = require(script.Parent.Parent.FocusNavigationContext)
 local useEventHandler = require(script.Parent.Parent.useEventHandler)

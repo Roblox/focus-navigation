@@ -7,7 +7,7 @@ files = ["*", "!**/__tests__"]
 
 [dependencies]
 EventPropagation = { path = "../event-propagation" }
-Utils = { path = "../utils" }
+FocusNavigationUtils = { path = "../focus-navigation-utils" }
 
 [dev_dependencies]
 Collections = { workspace = true }

@@ -6,7 +6,7 @@ content_root = "src"
 files = ["*", "!**/__tests__"]
 
 [dependencies]
-Utils = { path = "../utils" }
+FocusNavigationUtils = { path = "../focus-navigation-utils" }
 
 [dev_dependencies]
 JestGlobals = { workspace = true }
