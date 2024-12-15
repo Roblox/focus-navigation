@@ -2,7 +2,7 @@
 
 The EventPropagation package is responsible for functionality related to propagating events registered and triggered by consumers. It is a foundational component of the FocusNavigation library.
 
-!!! Warning
+!!! Info
     The functionality defined in the EventPropagation package is currently an implementation detail of the FocusNavigationService. It should only be used for the purpose of further library development.
 
 ## Types

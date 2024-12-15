@@ -2,6 +2,11 @@
 
 Input handling utility functions that simplify the process of authoring event handlers. These handlers are intended to be provided to a `FocusNavigationService` instance via its `registerEventHandler`/`registerEventHandlers` methods.
 
+!!! Warning
+    `InputHandler`s **MUST** be declared in a static context (eg. a React class component's `init()` method, `React.useMemo()`, in a script's global namespace, etc). Do **NOT** declare these as raw functions in a React component's `render()` method, as this can lead to complicated bugs that are difficult to identify. This is due to an implementation detail of `InputHandler`s which makes them sometimes lose event / input state in between renders.
+    
+    Follow callback best practices, as these are essentially just a thin wrapper around keybind callbacks.
+
 ## onPress
 ```lua
 function onPress(callback: FocusNavigation.EventHandler): FocusNavigation.EventHandler

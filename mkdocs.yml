@@ -8,15 +8,20 @@ theme:
   palette:
     primary: green
     accent: green
+  features:
+    - navigation.sections
+    - navigation.expand
 
 nav:
-  - Home: index.md
+  - Fundamentals: index.md
   - API Reference:
-      - React Focus Navigation: api-reference/react-focus-navigation.md
-      - Input Handlers: api-reference/input-handlers.md
-      - Focus Behaviors: api-reference/focus-behaviors.md
-      - Focus Navigation: api-reference/focus-navigation.md
-      - Event Propagation: api-reference/event-propagation.md
+      - Public API:
+          - React Focus Navigation: api-reference/react-focus-navigation.md
+          - Focus Navigation: api-reference/focus-navigation.md
+          - Input Handlers: api-reference/input-handlers.md
+      - Internal API:
+          - Focus Behaviors: api-reference/focus-behaviors.md
+          - Event Propagation: api-reference/event-propagation.md
 
 markdown_extensions:
   - admonition
