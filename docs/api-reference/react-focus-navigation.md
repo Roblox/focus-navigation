@@ -232,55 +232,6 @@ This hook reads the active event map and then filters the available actions for 
 This could be used to, for example, determine which icons to display in a shortcut bar which only wants to render a subset of the currently active key binds.
 </details>
 
-### useLastInputMethod
-
-```lua
-type InputMethod = "Keyboard" | "Mouse" | "Gamepad" | "Touch" | "None"
-function useLastInputMethod(): InputMethod
-```
-
-Returns a string representing the kind of input events that were last processed. This is useful for determining what to show in on-screen button-mapping hints, and may indicate whether or not focus should be hidden.
-
-The "last input method" concept is a layer of reduction over the `UserInputService:GetLastInputType()` function, which returns an [`Enum.UserInputType`](https://create.roblox.com/docs/reference/engine/enums/UserInputType).
-
-Inputs from the `UserInputType` enum are simplified to "Keyboard", "Mouse", "Gamepad", and "Touch" as follows:
-
-| Enum Member | Maps To | Notes |
-|--|--|--|
-|MouseButton1..3|Mouse||
-|MouseWheel|Mouse||
-|MouseMovement|Mouse||
-|Touch|Touch||
-|Keyboard|Keyboard||
-|Focus|_(ignored)_|Focusing the window can happen all sorts of ways, and shouldn't trigger a change to input method|
-|Accelerometer|_(ignored)_|Accelerometer events shouldn't change input method|
-|Gyro|_(ignored)_|Gyro events shouldn't change input method|
-|Gamepad1..8|Gamepad||
-|TextInput|_(ignored)_|Text input can come from various kinds of onscreen keyboards and fire at odd times when using other inputs, so we assume that they're superseded by other events and ignore them|
-|InputMethod|_(ignored)_|This is sort of a meta input change, not a real change to the input method that's in use|
-|None|_(ignored)_|Unknown inputs can be ignored for better clarity and resilience|
-
-The "None" value is only used when the initial value does not map to one of the other four.
-
-### useLastInputMode
-
-```lua
-type InputMode = "Focus" | "Cursor" | "None"
-function useLastInputMode(): InputMode
-```
-
-Returns a string representing the kind of input modes that were last processed. It further digests the last input method and maps it to a more specific input mode.
-
-| Input Method | Maps To |
-|--|--|
-|Mouse|Cursor|
-|Touch|Cursor|
-|Keyboard|Focus|
-|Gampad|Focus|
-|None|None|
-
-The "None" value is only used when the initial value is unknown.
-
 ### useFocusedGuiObject
 
 ```lua

@@ -1,7 +1,7 @@
 local Packages = script.Parent.Parent
 local React = require(Packages.React)
 local ReactFocusNavigation = require(Packages.ReactFocusNavigation)
-local useLastInputMethod = ReactFocusNavigation.useLastInputMethod
+local useLastInputMethod = require(script.Parent.useLastInputMethod)
 local useActiveEventMap = ReactFocusNavigation.useActiveEventMap
 
 local function ControllerContextBar()

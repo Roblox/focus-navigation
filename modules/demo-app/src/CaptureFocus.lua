@@ -3,7 +3,7 @@ local React = require(Packages.React)
 local RoactNavigation = require(Packages.RoactNavigation)
 local ReactFocusNavigation = require(Packages.ReactFocusNavigation)
 local useFocusGuiObject = ReactFocusNavigation.useFocusGuiObject
-local useLastInputMethod = ReactFocusNavigation.useLastInputMethod
+local useLastInputMethod = require(script.Parent.useLastInputMethod)
 
 local function CaptureFocusOnMount()
 	local ref = React.useRef(nil)

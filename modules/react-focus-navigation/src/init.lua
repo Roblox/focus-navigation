@@ -5,8 +5,6 @@ local FocusNavigation = require(Packages.FocusNavigation)
 local FocusNavigationContext = require(script.FocusNavigationContext)
 local useActiveEventMap = require(script.useActiveEventMap)
 local useFocusedGuiObject = require(script.useFocusedGuiObject)
-local useLastInputMethod = require(script.useLastInputMethod)
-local useLastInputMode = require(script.useLastInputMode)
 local useFocusGuiObject = require(script.useFocusGuiObject)
 local useEventMap = require(script.useEventMap)
 local useEventHandler = require(script.useEventHandler)
@@ -24,10 +22,6 @@ export type InputEvent = FocusNavigation.InputEvent
 export type EventMap = FocusNavigation.EventMap
 export type FocusNavigationService = FocusNavigation.FocusNavigationService
 
--- Types used for hooks
-export type InputMethod = useLastInputMethod.InputMethod
-export type InputMode = useLastInputMode.InputMode
-
 return {
 	-- Re-export FocusNavigationService logic
 	FocusNavigationService = FocusNavigation.FocusNavigationService,
@@ -39,8 +33,6 @@ return {
 	-- Observable properties
 	useActiveEventMap = useActiveEventMap,
 	useFocusedGuiObject = useFocusedGuiObject,
-	useLastInputMethod = useLastInputMethod,
-	useLastInputMode = useLastInputMode,
 
 	-- Focus control
 	useFocusGuiObject = useFocusGuiObject,

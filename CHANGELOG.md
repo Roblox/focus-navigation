@@ -1,9 +1,16 @@
 # Focus Navigation Changelog
 
+## 1.4.0 (12-16-2024)
+
+* Remove `useLastInputMode` and `useLastInputMethod` hooks from exports
+* Update documentation to include code samples, better warnings, and more usage information
+
 ## 1.3.0 (9-27-2023)
-* Add `isValidFocusTarget` utility, add focus behavior hooks `useContainerFocusBehavior`, `useDefaultFocusBehavior`, `useMostRecentFocusBehavior`, `useMostRecentOrDefaultFocusBehavior` ([#29](https://github.com/Roblox/focus-navigation/pull/29)) 
+
+* Add `isValidFocusTarget` utility, add focus behavior hooks `useContainerFocusBehavior`, `useDefaultFocusBehavior`, `useMostRecentFocusBehavior`, `useMostRecentOrDefaultFocusBehavior` ([#29](https://github.com/Roblox/focus-navigation/pull/29))
 
 ## 1.2.0 (7-25-2023)
+
 * Add `useLastInputMode` hook ([#27](https://github.com/Roblox/focus-navigation/pull/27))
 * Add the `registerFocusBehavior` and `deregisterFocusBehavior` API members to the `FocusNavigationService` ([#25](https://github.com/Roblox/focus-navigation/pull/25))
 
@@ -11,7 +18,6 @@
 
 * An event having been processed by the engine will no longer prevent event propagation ([#23](https://github.com/Roblox/focus-navigation/pull/23))
 * Events propagated through the FocusNavigationService will now have an attribute indicating that the event was processed ([#23](https://github.com/Roblox/focus-navigation/pull/23))
-
 
 ## 1.0.0 (6-5-2023)
 
