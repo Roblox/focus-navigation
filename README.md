@@ -51,4 +51,4 @@ Documentation for Focus Navigation is available on [the official documentation w
 
 Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you, as defined in the MIT license, shall be licensed as above, without any additional terms or conditions.
 
-Take a look at the [contributing guide](CONTRIBUTING) for guidelines on how to contribute to Focus Navigation.
+Take a look at the [contributing guide](CONTRIBUTING.md) for guidelines on how to contribute to Focus Navigation.
