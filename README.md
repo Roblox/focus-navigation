@@ -27,7 +27,7 @@ Some common uses include:
 
 ## General Use
 
-The primary public interface for this library is through [React](https://github.com/Roblox/react-lua) via [ReactFocusNavigation](https://roblox.github.io/focus-navigation-internal/api-reference/react-focus-navigation.md), but non-React helpers are also provided in [FocusNavigation](https://roblox.github.io/focus-navigation-internal/api-reference/focus-navigation-internal.md). Most features built using this library will use one of these options combined with [InputHandlers](https://roblox.github.io/focus-navigation-internal/api-reference/input-handlers.md) to manage keybinds and callbacks.
+The primary public interface for this library is through [React](https://github.com/Roblox/react-lua) via [ReactFocusNavigation](https://roblox.github.io/focus-navigation-internal/api-reference/react-focus-navigation), but non-React helpers are also provided in [FocusNavigation](https://roblox.github.io/focus-navigation-internal/api-reference/focus-navigation-internal). Most features built using this library will use one of these options combined with [InputHandlers](https://roblox.github.io/focus-navigation-internal/api-reference/input-handlers) to manage keybinds and callbacks.
 
 ## Installation
 
@@ -37,7 +37,7 @@ The Focus Navigation library can be installed via [Rotriever](https://github.com
 ReactFocusNavigation = "github.com/roblox/focus-navigation-internal@1.3.0"
 ```
 
-Optionally, you may wish to include the [`InputHandlers`](https://roblox.github.io/focus-navigation-internal/api-reference/input-handlers.md) utility library as well:
+Optionally, you may wish to include the [`InputHandlers`](https://roblox.github.io/focus-navigation-internal/api-reference/input-handlers) utility library as well:
 
 ```toml
 InputHandlers = "github.com/roblox/focus-navigation-internal@1.3.0"
@@ -51,4 +51,4 @@ Documentation for Focus Navigation is available on [the official documentation w
 
 Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you, as defined in the MIT license, shall be licensed as above, without any additional terms or conditions.
 
-Take a look at the [contributing guide](CONTRIBUTING.md) for guidelines on how to contribute to Focus Navigation.
+Take a look at the [contributing guide](CONTRIBUTING) for guidelines on how to contribute to Focus Navigation.
