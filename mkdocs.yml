@@ -1,7 +1,7 @@
 site_name: Focus Navigation
-site_url: https://roblox.github.io/focus-navigation/
-repo_name: Roblox/focus-navigation
-repo_url: https://github.com/Roblox/focus-navigation
+site_url: https://roblox.github.io/focus-navigation-internal/
+repo_name: Roblox/focus-navigation-internal
+repo_url: https://github.com/Roblox/focus-navigation-internal
 
 theme:
   name: material
