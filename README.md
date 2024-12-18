@@ -47,6 +47,10 @@ InputHandlers = "github.com/roblox/focus-navigation-internal@1.3.0"
 
 Documentation for Focus Navigation is available on [the official documentation website](https://roblox.github.io/focus-navigation-internal).
 
+## License
+
+Licensed under the [MIT License](http://opensource.org/licenses/MIT) — see [LICENSE.txt](LICENSE.txt).
+
 ### Contribution
 
 Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you, as defined in the MIT license, shall be licensed as above, without any additional terms or conditions.
