@@ -27,7 +27,7 @@ Some common uses include:
 
 ## General Use
 
-The primary public interface for this library is through [React](https://github.com/Roblox/react-lua) via [ReactFocusNavigation](https://roblox.github.io/focus-navigation-internal/api-reference/react-focus-navigation), but non-React helpers are also provided in [FocusNavigation](https://roblox.github.io/focus-navigation-internal/api-reference/focus-navigation-internal). Most features built using this library will use one of these options combined with [InputHandlers](https://roblox.github.io/focus-navigation-internal/api-reference/input-handlers) to manage keybinds and callbacks.
+The primary public interface for this library is through [React](https://github.com/Roblox/react-lua) via [ReactFocusNavigation](https://roblox.github.io/focus-navigation-internal/api-reference/react-focus-navigation), but non-React helpers are also provided in [FocusNavigation](https://roblox.github.io/focus-navigation-internal/api-reference/focus-navigation). Most features built using this library will use one of these options combined with [InputHandlers](https://roblox.github.io/focus-navigation-internal/api-reference/input-handlers) to manage keybinds and callbacks.
 
 ## Installation
 
